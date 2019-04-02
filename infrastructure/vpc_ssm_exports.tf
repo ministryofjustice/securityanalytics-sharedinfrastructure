@@ -7,7 +7,7 @@ locals {
 }
 
 resource "aws_ssm_parameter" "subnets" {
-  count       = 3
+  count       = "${length(local.subnet_types)}"
   name        = "/${var.app_name}/${terraform.workspace}/vpc/subnets/${local.subnet_types[count.index]}"
   description = "The ${var.app_name}'s vpc's ${local.subnet_types[count.index]} subnets"
   type        = "StringList"
