@@ -38,7 +38,7 @@ variable "az_limit" {
 
 provider "aws" {
   region  = "${var.aws_region}"
-  profile = "sec-an"
+  profile = "${var.app_name}"
 }
 
 #############################################

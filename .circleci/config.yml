@@ -35,15 +35,19 @@ jobs:
             echo checking formatting
             terraform fmt -check=true
             echo making the plan
-            terraform plan -no-color > terraform.plan
+            terraform plan -no-color -out=plan.file > terraform.plan
 
       - persist_to_workspace:
           root: .
           paths:
             - terraform.plan
+            - plan.file
 
       - store_artifacts:
           path: terraform.plan
+
+      - store_artifacts:
+          path: plan.file
 
       - save_cache:
           key: git-v3-{{ .Branch }}-{{ .Revision }}
@@ -62,7 +66,7 @@ jobs:
           at: .
       - run:
           name: terraform apply
-          command: terraform apply terraform.plan
+          command: terraform apply plan.file
 
 workflows:
   version: 2
