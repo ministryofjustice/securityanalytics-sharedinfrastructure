@@ -68,15 +68,15 @@ data "aws_iam_policy_document" "access_terraform" {
   }
 
   statement {
-    effect = "Allow"
-    actions = [ "dynamodb:*" ]
-    resources = [ "${aws_dynamodb_table.db.arn}" ]
+    effect    = "Allow"
+    actions   = ["dynamodb:*"]
+    resources = ["${aws_dynamodb_table.db.arn}"]
   }
 
   statement {
-    effect = "Allow"
-    actions = [ "iam:GetUser" ]
-    resources = [ "${aws_iam_user.circle_ci.arn}" ]
+    effect    = "Allow"
+    actions   = ["iam:GetUser"]
+    resources = ["${aws_iam_user.circle_ci.arn}"]
   }
 }
 
