@@ -8,6 +8,7 @@ terraform {
     dynamodb_table = "sec-an-terraform-locks"
     key            = "sec-an/terraform.tfstate"
     region         = "eu-west-2"                # london
+    profile        = "sec-an"
   }
 }
 
@@ -23,11 +24,6 @@ variable "app_name" {
   default = "sec-an"
 }
 
-provider "aws" {
-  region  = "${var.aws_region}"
-  profile = "${var.app_name}"
-}
-
 variable "use_private_subnets" {
   default = "true"
 }
@@ -38,6 +34,11 @@ variable "create_nat_gateway" {
 
 variable "az_limit" {
   default = 1
+}
+
+provider "aws" {
+  region  = "${var.aws_region}"
+  profile = "sec-an"
 }
 
 #############################################

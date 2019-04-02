@@ -11,7 +11,8 @@ variable "app_name" {
 }
 
 provider "aws" {
-  region = "${var.aws_region}"
+  region  = "${var.aws_region}"
+  profile = "${var.app_name}"
 }
 
 #############################################
@@ -39,4 +40,53 @@ resource "aws_dynamodb_table" "db" {
     name = "LockID"
     type = "S"
   }
+}
+
+resource "aws_iam_user" "circle_ci" {
+  name = "${var.app_name}-circle-ci"
+
+  tags = {
+    app_name = "${var.app_name}"
+  }
+}
+
+data "aws_iam_policy_document" "access_terraform" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "s3:DeleteObject*",
+      "s3:Get*",
+      "s3:List*",
+      "s3:PutObject*",
+    ]
+
+    resources = [
+      "${aws_s3_bucket.bucket.arn}",
+      "${aws_s3_bucket.bucket.arn}/*",
+    ]
+  }
+
+  statement {
+    effect = "Allow"
+    actions = [ "dynamodb:*" ]
+    resources = [ "${aws_dynamodb_table.db.arn}" ]
+  }
+
+  statement {
+    effect = "Allow"
+    actions = [ "iam:GetUser" ]
+    resources = [ "${aws_iam_user.circle_ci.arn}" ]
+  }
+}
+
+resource "aws_iam_policy" "terraform_access" {
+  name   = "${var.app_name}-terraform-access"
+  policy = "${data.aws_iam_policy_document.access_terraform.json}"
+}
+
+resource "aws_iam_policy_attachment" "terraform_access" {
+  name       = "${var.app_name}-terraform-access"
+  users      = ["${aws_iam_user.circle_ci.id}"]
+  policy_arn = "${aws_iam_policy.terraform_access.arn}"
 }

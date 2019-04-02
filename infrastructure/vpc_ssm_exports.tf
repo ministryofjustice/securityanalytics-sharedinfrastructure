@@ -1,11 +1,13 @@
 locals {
   // annoyingly it doesn't seem to work if I replace this with keys(module.vpc.subnets)
   // actually it does once setup the first time, but not when bootstrapping
+  // Will work with HCL2 in version 12 of terraform
+  // TODO https://github.com/hashicorp/terraform/issues/16712
   subnet_types = ["instance", "public", "private"]
 }
 
 resource "aws_ssm_parameter" "subnets" {
-  count       = "${length(local.subnet_types)}"
+  count       = 3
   name        = "/${var.app_name}/${terraform.workspace}/vpc/subnets/${local.subnet_types[count.index]}"
   description = "The ${var.app_name}'s vpc's ${local.subnet_types[count.index]} subnets"
   type        = "StringList"
