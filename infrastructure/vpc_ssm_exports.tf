@@ -12,6 +12,7 @@ resource "aws_ssm_parameter" "subnets" {
   description = "The ${var.app_name}'s vpc's ${local.subnet_types[count.index]} subnets"
   type        = "StringList"
   value       = "${join(",",module.vpc.subnets[local.subnet_types[count.index]])}"
+  overwrite   = "true"
 
   tags {
     app_name  = "${var.app_name}"
@@ -24,6 +25,7 @@ resource "aws_ssm_parameter" "using_private" {
   description = "Whether the VPC has been configured to use private subnets"
   type        = "String"
   value       = "${var.use_private_subnets}"
+  overwrite   = "true"
 
   tags {
     app_name  = "${var.app_name}"
@@ -36,6 +38,7 @@ resource "aws_ssm_parameter" "cidr_block" {
   description = "The ${var.app_name}'s vpc's cidr block"
   type        = "String"
   value       = "${module.vpc.cidr_block}"
+  overwrite   = "true"
 
   tags {
     app_name  = "${var.app_name}"
@@ -48,6 +51,7 @@ resource "aws_ssm_parameter" "id" {
   description = "The ${var.app_name}'s vpc's id"
   type        = "String"
   value       = "${module.vpc.vpc_id}"
+  overwrite   = "true"
 
   tags {
     app_name  = "${var.app_name}"
