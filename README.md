@@ -1,3 +1,5 @@
+[![CircleCI](https://circleci.com/gh/ministryofjustice/securityanalytics-sharedinfrastructure.svg?style=svg)](https://circleci.com/gh/ministryofjustice/securityanalytics-sharedinfrastructure)
+
 # Security Analytics - Shared Infrastructure
 
 This project holds infrastructure used by all other components of the security analytics platform.
