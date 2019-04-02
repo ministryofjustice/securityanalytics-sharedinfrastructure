@@ -1,16 +1,14 @@
 version: 2
+orbs:
+  aws-cli: circleci/aws-cli@0.1.13
 jobs:
   build:
     docker:
       - image: debian:stretch
-
+        
     steps:
       - checkout
 
       - run:
-          name: Greeting
-          command: echo Hello, world.
-
-      - run:
-          name: Print the Current Time
-          command: date
+          name: Who am I?
+          command: aws cli get-caller-identity

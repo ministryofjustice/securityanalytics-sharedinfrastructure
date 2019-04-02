@@ -23,11 +23,6 @@ variable "app_name" {
   default = "sec-an"
 }
 
-provider "aws" {
-  region  = "${var.aws_region}"
-  profile = "${var.app_name}"
-}
-
 variable "use_private_subnets" {
   default = "true"
 }
@@ -40,6 +35,11 @@ variable "az_limit" {
   default = 1
 }
 
+provider "aws" {
+  region  = "${var.aws_region}"
+  profile = "${var.app_name}"
+}
+
 #############################################
 # Resources
 #############################################
@@ -50,4 +50,8 @@ module "vpc" {
   create_private = "${var.use_private_subnets}"
   create_nat     = "${var.create_nat_gateway}"
   az_limit       = "${var.az_limit}"
+}
+
+data "aws_iam_user" "circle-ci-user" {
+  user_name = ""
 }

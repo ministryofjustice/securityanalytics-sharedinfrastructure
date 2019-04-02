@@ -12,6 +12,7 @@ variable "app_name" {
 
 provider "aws" {
   region = "${var.aws_region}"
+  profile = "${var.app_name}"
 }
 
 #############################################
