@@ -38,10 +38,11 @@ jobs:
             terraform plan -no-color -out=plan.file > terraform.plan
 
       - persist_to_workspace:
-          root: .
+          root: ~/project/
           paths:
-            - terraform.plan
-            - plan.file
+            - .terraform
+            - infrastructure/terraform.plan
+            - infrastructure/plan.file
 
       - store_artifacts:
           path: terraform.plan
@@ -63,7 +64,7 @@ jobs:
     executor: terraform
     steps:
       - attach_workspace:
-          at: .
+          at: ~/project/
       - run:
           name: terraform apply
           command: terraform apply plan.file
