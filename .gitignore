@@ -6,4 +6,5 @@
 *.tfstate.*
 
 # .tfvars files
-*.tfvars
+*auto.tfvars
+terraform.tfvars
