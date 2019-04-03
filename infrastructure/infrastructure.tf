@@ -36,9 +36,12 @@ variable "az_limit" {
   default = 1
 }
 
+variable "account_id" {}
+
 provider "aws" {
-  region  = "${var.aws_region}"
-  profile = "${var.app_name}"
+  region              = "${var.aws_region}"
+  profile             = "${var.app_name}"
+  allowed_account_ids = ["${var.account_id}"]
 }
 
 #############################################

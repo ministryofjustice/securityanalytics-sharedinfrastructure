@@ -9,7 +9,7 @@ resource "aws_subnet" "private" {
   availability_zone = "${data.aws_availability_zones.azs.names[count.index]}"
 
   tags {
-    Name      = "${var.app_name}-priv-${count.index}-${terraform.workspace}"
+    Name      = "${terraform.workspace}-${var.app_name}-priv-${count.index}"
     app_name  = "${var.app_name}"
     workspace = "${terraform.workspace}"
   }
@@ -25,7 +25,7 @@ resource "aws_route_table" "private" {
   }
 
   tags {
-    Name      = "${var.app_name}-priv-${count.index}-${terraform.workspace}"
+    Name      = "${terraform.workspace}-${var.app_name}-priv-${count.index}"
     app_name  = "${var.app_name}"
     workspace = "${terraform.workspace}"
   }

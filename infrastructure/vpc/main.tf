@@ -16,7 +16,7 @@ resource "aws_vpc" "vpc" {
   enable_dns_support   = true
 
   tags {
-    Name      = "${var.app_name}-vpc-${terraform.workspace}"
+    Name      = "${terraform.workspace}-${var.app_name}-vpc"
     app_name  = "${var.app_name}"
     workspace = "${terraform.workspace}"
   }
@@ -26,7 +26,7 @@ resource "aws_internet_gateway" "ig" {
   vpc_id = "${aws_vpc.vpc.id}"
 
   tags {
-    Name      = "${var.app_name}-scanning-cluster-${terraform.workspace}"
+    Name      = "${terraform.workspace}-${var.app_name}-scanning-cluster"
     app_name  = "${var.app_name}"
     workspace = "${terraform.workspace}"
   }

@@ -32,10 +32,11 @@ jobs:
           name: terraform
           command: |
             terraform init
+            terraform workspace new dev || terrafrom workspace select dev
             echo checking formatting
             terraform fmt -check=true
             echo making the plan
-            terraform plan -no-color -out=plan.file > terraform.plan
+            terraform plan -var account_id=$ACCOUNT_ID -no-color -out=plan.file > terraform.plan
 
       - persist_to_workspace:
           root: .
