@@ -1,5 +1,5 @@
 resource "aws_ecr_repository" "repo" {
-  name = "${var.app_name}-build-repo-${terraform.workspace}"
+  name = "${terraform.workspace}-${var.app_name}-build-repo"
 
   tags {
     app_name  = "${var.app_name}"
