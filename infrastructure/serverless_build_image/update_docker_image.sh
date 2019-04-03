@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
 eval "$(aws ecr get-login --no-include-email --region $2)"
 docker build -t $1 $3
