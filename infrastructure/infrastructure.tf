@@ -57,8 +57,6 @@ module "vpc" {
 }
 
 resource "aws_api_gateway_rest_api" "api" {
-  name      = "${terraform.workspace}-${var.app_name}-api"
+  name        = "${terraform.workspace}-${var.app_name}-api"
   description = "Security Analytics API"
 }
-
-
