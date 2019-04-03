@@ -42,8 +42,7 @@ jobs:
       - persist_to_workspace:
           root: .
           paths:
-            - .terraform
-            - plan.file
+            - *
 
       - store_artifacts:
           path: terraform.plan
