@@ -32,7 +32,7 @@ jobs:
           name: terraform
           command: |
             terraform init
-            terraform workspace new dev || terrafrom workspace select dev
+            terraform workspace new dev || terraform workspace select dev
             echo checking formatting
             terraform fmt -check=true
             echo making the plan
