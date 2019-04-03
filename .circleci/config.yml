@@ -68,9 +68,9 @@ jobs:
       - run:
           name: terraform apply
           command: |
+            # TODO just use a better build image
             apk -v --update add python3 docker openrc
             pip3 install awscli
-            service docker start
             terraform apply plan.file
 
 workflows:
