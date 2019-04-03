@@ -70,6 +70,7 @@ jobs:
           command: |
             apk -v --update add python3 docker
             pip3 install awscli
+            service docker start
             terraform apply plan.file
 
 workflows:
