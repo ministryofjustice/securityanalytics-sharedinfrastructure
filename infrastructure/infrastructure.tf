@@ -55,3 +55,8 @@ module "vpc" {
   create_nat     = "${var.create_nat_gateway}"
   az_limit       = "${var.az_limit}"
 }
+
+resource "aws_api_gateway_rest_api" "api" {
+  name        = "${terraform.workspace}-${var.app_name}-api"
+  description = "Security Analytics API"
+}
