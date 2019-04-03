@@ -8,7 +8,6 @@ resource "aws_ecr_repository" "repo" {
 }
 
 resource "null_resource" "build_image" {
-
   triggers {
     // hash tags make sure we redeploy on a change
     docker_hash = "${md5(file("${local.docker_dir}/Dockerfile"))}"

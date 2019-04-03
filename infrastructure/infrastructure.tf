@@ -57,9 +57,9 @@ module "vpc" {
 }
 
 module "build_ecr" {
-  source = "serverless_build_image"
-  app_name       = "${var.app_name}"
-  aws_region       = "${var.aws_region}"
+  source     = "serverless_build_image"
+  app_name   = "${var.app_name}"
+  aws_region = "${var.aws_region}"
 }
 
 resource "aws_api_gateway_rest_api" "api" {
