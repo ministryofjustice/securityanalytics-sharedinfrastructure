@@ -67,7 +67,10 @@ jobs:
           at: .
       - run:
           name: terraform apply
-          command: terraform apply plan.file
+          command: |
+            apk -v --update add python3
+            pip install awscli
+            terraform apply plan.file
 
 workflows:
   version: 2
