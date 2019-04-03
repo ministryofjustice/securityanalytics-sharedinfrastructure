@@ -18,7 +18,7 @@ resource "aws_nat_gateway" "nat" {
   subnet_id     = "${aws_subnet.public.*.id[count.index]}"
 
   tags {
-    Name      = "${var.app_name}-gw-${count.index}-${terraform.workspace}"
+    Name      = "${terraform.workspace}-${var.app_name}-gw-${count.index}"
     app_name  = "${var.app_name}"
     workspace = "${terraform.workspace}"
   }
