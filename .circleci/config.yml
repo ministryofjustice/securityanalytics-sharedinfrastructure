@@ -68,7 +68,7 @@ jobs:
       - run:
           name: terraform apply
           command: |
-            apk -v --update add docker
+            apk -v --update add python3 docker
             pip3 install awscli
             terraform apply plan.file
 
