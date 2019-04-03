@@ -14,6 +14,6 @@ resource "null_resource" "build_image" {
   }
 
   provisioner "local-exec" {
-    command = "./serverless_build_image/update_docker_image.sh sec-an-builder ${aws_ecr_repository.repo.repository_url} .  ${var.aws_region}"
+    command = "./serverless_build_image/update_docker_image.sh sec-an-builder ${aws_ecr_repository.repo.repository_url} ./serverless_build_image ${var.aws_region}"
   }
 }
