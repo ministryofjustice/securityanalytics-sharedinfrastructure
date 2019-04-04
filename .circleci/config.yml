@@ -9,7 +9,7 @@ executors:
     terraform:
       # TODO should have our own images or supply a fixed version number
       docker:
-        - image: hashicorp/terraform:light
+        - image: duckpodger/python3-node-aws-terraform
       working_directory: ~/project/infrastructure
 
 jobs:
@@ -67,11 +67,7 @@ jobs:
           at: .
       - run:
           name: terraform apply
-          command: |
-            # TODO just use a better build image
-            apk -v --update add python3 docker openrc
-            pip3 install awscli
-            terraform apply plan.file
+          command: terraform apply plan.file
 
 workflows:
   version: 2
