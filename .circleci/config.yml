@@ -6,11 +6,10 @@ master-only: &master-only
       only: master
 
 executors:
-    terraform:
-      # TODO should have our own images or supply a fixed version number
-      docker:
-        - image: duckpodger/python3-node-aws-terraform
-      working_directory: ~/project/infrastructure
+  terraform:
+    docker:
+      - image: duckpodger/python3-node-aws-terraform
+    working_directory: ~/project/infrastructure
 
 jobs:
   setup:
