@@ -7,7 +7,7 @@ resource "aws_subnet" "public" {
   count                   = "${local.az_count}"
   map_public_ip_on_launch = true
 
-  // offset by count because the private subnets came first
+  # offset by count because the private subnets came first
   cidr_block        = "${cidrsubnet(aws_vpc.vpc.cidr_block, 8, count.index)}"
   availability_zone = "${data.aws_availability_zones.azs.names[count.index]}"
 

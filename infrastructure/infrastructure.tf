@@ -56,7 +56,14 @@ module "vpc" {
   az_limit       = "${var.az_limit}"
 }
 
-resource "aws_api_gateway_rest_api" "api" {
-  name        = "${terraform.workspace}-${var.app_name}-api"
-  description = "Security Analytics API"
+module "user_pool" {
+  source   = "user_pool"
+  app_name = "${var.app_name}"
+  api_url  = "${module.api_gateway.api_url}"
+}
+
+module "api_gateway" {
+  source        = "api_gateway"
+  app_name      = "${var.app_name}"
+  user_pool_arn = "${module.user_pool.user_pool_arn}"
 }
