@@ -59,7 +59,7 @@ module "vpc" {
 module "user_pool" {
   source   = "user_pool"
   app_name = "${var.app_name}"
-  api_url = "${module.api_gateway.api_url}"
+  api_url  = "${module.api_gateway.api_url}"
 }
 
 module "api_gateway" {

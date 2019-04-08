@@ -28,5 +28,5 @@ resource "aws_api_gateway_rest_api" "private_api" {
 
 resource "aws_api_gateway_deployment" "stage" {
   rest_api_id = "${aws_api_gateway_rest_api.public_api.id}"
-  stage_name = "${terraform.workspace}"
+  stage_name  = "${terraform.workspace}"
 }

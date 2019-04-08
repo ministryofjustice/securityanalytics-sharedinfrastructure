@@ -7,7 +7,7 @@ resource "aws_cognito_user_pool" "user_pool" {
     invite_message_template = {
       email_message = "You have been invited to use the security analytics apllication. Your user name is {username} and temporary password is {####}. You have 1 week in which to take up this invitation."
       email_subject = "You are invited to use the security analytics application"
-      sms_message = "Your user name is {username} and temporary password is {####}"
+      sms_message   = "Your user name is {username} and temporary password is {####}"
     }
 
     unused_account_validity_days = 7
@@ -34,6 +34,7 @@ resource "aws_cognito_user_pool" "user_pool" {
     name                = "email"
     required            = true
     mutable             = false
+
     string_attribute_constraints {
       max_length = "100"
       min_length = "1"
@@ -45,6 +46,7 @@ resource "aws_cognito_user_pool" "user_pool" {
     name                = "given_name"
     required            = true
     mutable             = true
+
     string_attribute_constraints {
       max_length = "100"
       min_length = "1"
@@ -56,6 +58,7 @@ resource "aws_cognito_user_pool" "user_pool" {
     name                = "family_name"
     required            = true
     mutable             = true
+
     string_attribute_constraints {
       max_length = "100"
       min_length = "1"
@@ -93,4 +96,3 @@ resource "aws_cognito_identity_pool_roles_attachment" "main" {
     "authenticated" = "${aws_iam_role.sec_an_user.arn}"
   }
 }
-
