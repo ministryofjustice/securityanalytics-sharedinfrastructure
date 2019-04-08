@@ -24,6 +24,19 @@ resource "aws_ssm_parameter" "public_api_root" {
   }
 }
 
+resource "aws_ssm_parameter" "public_api_authorizer" {
+  name        = "/${var.app_name}/${terraform.workspace}/api/public/authorizer"
+  description = "Public Api gateway root resource id"
+  type        = "String"
+  value       = "${aws_api_gateway_authorizer.public_api_authorizer.id}"
+  overwrite   = "true"
+
+  tags {
+    app_name  = "${var.app_name}"
+    workspace = "${terraform.workspace}"
+  }
+}
+
 resource "aws_ssm_parameter" "private_api_id" {
   name        = "/${var.app_name}/${terraform.workspace}/api/private/id"
   description = "Private Api gateway Id"
