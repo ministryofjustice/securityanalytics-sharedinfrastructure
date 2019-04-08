@@ -28,7 +28,7 @@ resource "aws_ssm_parameter" "public_api_authorizer" {
   name        = "/${var.app_name}/${terraform.workspace}/api/public/authorizer"
   description = "Public Api gateway root resource id"
   type        = "String"
-  value       = "${aws_api_gateway_authorizer.public_api_authorizer.id}"
+  value       = "${aws_api_gateway_authorizer.public_api_authorizer.arn}"
   overwrite   = "true"
 
   tags {
