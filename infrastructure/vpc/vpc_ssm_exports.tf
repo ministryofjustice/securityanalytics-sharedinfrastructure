@@ -42,6 +42,7 @@ resource "aws_ssm_parameter" "public_subnets" {
 }
 
 resource "aws_ssm_parameter" "private_subnets" {
+  count       = "${var.create_private ? 1 : 0}"
   name        = "/${var.app_name}/${terraform.workspace}/vpc/subnets/private"
   description = "The ${var.app_name}'s vpc's private subnets"
   type        = "StringList"
