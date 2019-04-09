@@ -6,8 +6,8 @@ master-only: &master-only
       only: master
 
 executors:
-  terraform:
-    builder:
+  builder:
+    docker:
       - image: duckpodger/python3-node-aws-terraform
 
 jobs:
