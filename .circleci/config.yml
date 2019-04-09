@@ -47,6 +47,8 @@ jobs:
       - run:
           name: install virtual env & test report dirs
           command: |
+            cd shared_python
+            export PIPENV_VENV_IN_PROJECT=true
             if [ ! -d ".venv" ]; then
               pipenv install
             fi
@@ -94,7 +96,7 @@ jobs:
             export PYTHONPATH=`pwd`
             pytest --junitxml=test-reports/junit.xml -m unit tests
       - store_test_results:
-          path: test-reports
+          path: shared_python/test-reports
 
   package-test:
     executor: builder
@@ -104,6 +106,7 @@ jobs:
       - run:
           name: integration tests
           command: |
+            cd shared_python
             . ./venv/bin/activate
             export AWS_REGION=eu-west-2
             export PYTHONPATH=`pwd`
