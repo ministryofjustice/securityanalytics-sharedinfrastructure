@@ -49,7 +49,7 @@ jobs:
           command: |
             cd shared_python
             export PIPENV_VENV_IN_PROJECT=true
-            pipenv install --dev
+            pipenv install --dev --deploy
             if [ ! -d "test-reports" ]; then
               mkdir test-reports
             fi
