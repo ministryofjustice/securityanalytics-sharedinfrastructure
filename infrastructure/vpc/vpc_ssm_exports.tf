@@ -11,14 +11,14 @@ resource "aws_ssm_parameter" "instance_subnets" {
   description = "The ${var.app_name}'s vpc's instance subnets"
   type        = "StringList"
 
-  value = "\"${join(
-                    "\",\"",
+  value = "${join(
+                    ",",
                     slice(
                       concat(aws_subnet.private.*.id, aws_subnet.public.*.id),
                       var.create_private ? 0 : length(aws_subnet.private.*.id),
                       var.create_private ?
                           length(aws_subnet.private.*.id) :
-                          length(aws_subnet.private.*.id) + length(aws_subnet.public.*.id)))}\""
+                          length(aws_subnet.private.*.id) + length(aws_subnet.public.*.id)))}"
 
   overwrite = "true"
 
@@ -32,7 +32,7 @@ resource "aws_ssm_parameter" "public_subnets" {
   name        = "/${var.app_name}/${terraform.workspace}/vpc/subnets/public"
   description = "The ${var.app_name}'s vpc's public subnets"
   type        = "StringList"
-  value       = "\"${join("\",\"",aws_subnet.public.*.id)}\""
+  value       = "${join(",",aws_subnet.public.*.id)}"
   overwrite   = "true"
 
   tags {
@@ -42,10 +42,11 @@ resource "aws_ssm_parameter" "public_subnets" {
 }
 
 resource "aws_ssm_parameter" "private_subnets" {
+  count       = "${var.create_private ? 1 : 0}"
   name        = "/${var.app_name}/${terraform.workspace}/vpc/subnets/private"
   description = "The ${var.app_name}'s vpc's private subnets"
   type        = "StringList"
-  value       = "\"${join("\",\"",aws_subnet.private.*.id)}\""
+  value       = "${join(",",aws_subnet.private.*.id)}"
   overwrite   = "true"
 
   tags {
