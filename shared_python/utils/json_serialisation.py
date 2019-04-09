@@ -10,5 +10,5 @@ def json_serial(obj):
     raise TypeError("Type %s not serializable" % type(obj))
 
 
-def dumps(obj):
-    return json.dumps(obj, default=json_serial)
+def dumps(obj, **kwargs):
+    return json.dumps(obj, default=json_serial, **kwargs)
