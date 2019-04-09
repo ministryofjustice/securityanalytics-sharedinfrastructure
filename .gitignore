@@ -8,3 +8,28 @@
 # .tfvars files
 *auto.tfvars
 terraform.tfvars
+
+# Distribution / packaging
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+__pycache__
+venv
+.venv
+
+
+# javascript ignores
+node_modules
