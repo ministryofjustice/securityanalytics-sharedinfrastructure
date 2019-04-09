@@ -50,7 +50,7 @@ jobs:
             cd shared_python
             export PIPENV_VENV_IN_PROJECT=true
             if [ ! -d ".venv" ]; then
-              pipenv install
+              pipenv install --dev
             fi
             if [ ! -d "test-reports" ]; then
               mkdir test-reports
@@ -107,7 +107,7 @@ jobs:
           name: integration tests
           command: |
             cd shared_python
-            . ./venv/bin/activate
+            . ./.venv/bin/activate
             export AWS_REGION=eu-west-2
             export PYTHONPATH=`pwd`
             # Get short version of git hash for temporary deployment
