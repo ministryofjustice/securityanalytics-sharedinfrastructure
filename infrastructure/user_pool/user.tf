@@ -1,5 +1,15 @@
 data "aws_iam_policy_document" "sec_an_user" {
   statement {
+    effect    = "Allow"
+    actions   = ["sts:AssumeRole"]
+
+    principals {
+      identifiers = ["es.amazonaws.com"]
+      type        = "Service"
+    }
+  }
+
+  statement {
     effect  = "Allow"
     actions = ["sts:AssumeRole"]
 
@@ -28,6 +38,7 @@ data "aws_iam_policy_document" "sec_an_user" {
       type        = "Federated"
     }
   }
+
 }
 
 resource "aws_iam_role" "sec_an_user" {
