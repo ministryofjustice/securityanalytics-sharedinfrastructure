@@ -1,8 +1,0 @@
-[dev-packages]
-pytest = "*"
-setuptools = "*"
-
-[packages]
-
-[requires]
-python_version = "3.7"
