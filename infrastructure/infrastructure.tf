@@ -25,7 +25,7 @@ variable "app_name" {
 }
 
 variable "use_private_subnets" {
-  default = "true"
+  default = "false"
 }
 
 variable "create_nat_gateway" {
