@@ -68,6 +68,19 @@ resource "aws_ssm_parameter" "using_private" {
   }
 }
 
+resource "aws_ssm_parameter" "num_azs" {
+  name        = "/${var.app_name}/${terraform.workspace}/vpc/num_azs"
+  description = "How many AZs VPC has been configured to use"
+  type        = "String"
+  value       = "${local.az_count}"
+  overwrite   = "true"
+
+  tags {
+    app_name  = "${var.app_name}"
+    workspace = "${terraform.workspace}"
+  }
+}
+
 resource "aws_ssm_parameter" "cidr_block" {
   name        = "/${var.app_name}/${terraform.workspace}/vpc/cidr_block"
   description = "The ${var.app_name}'s vpc's cidr block"
