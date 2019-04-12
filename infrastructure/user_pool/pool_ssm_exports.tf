@@ -49,4 +49,3 @@ resource "aws_ssm_parameter" "cognito_user_arn" {
     workspace = "${terraform.workspace}"
   }
 }
-
