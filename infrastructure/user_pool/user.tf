@@ -1,6 +1,16 @@
 data "aws_iam_policy_document" "sec_an_user" {
   statement {
     effect  = "Allow"
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      identifiers = ["es.amazonaws.com"]
+      type        = "Service"
+    }
+  }
+
+  statement {
+    effect  = "Allow"
     actions = ["sts:AssumeRoleWithWebIdentity"]
 
     principals {
