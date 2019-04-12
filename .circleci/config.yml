@@ -32,6 +32,9 @@ jobs:
           name: terraform
           command: |
             terraform init
+            # N.B. Don't need a per branch workspace, because we only ever deploy this to dev env
+            # If in the future we add integration tests (probably should), we should do integration tests in a per
+            # branch workspace like the other projects do.
             terraform workspace new dev || terraform workspace select dev
             echo checking formatting
             terraform fmt -check=true
