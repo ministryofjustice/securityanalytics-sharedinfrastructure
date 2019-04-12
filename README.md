@@ -17,3 +17,7 @@ This is the main terraform project that provides the shared infrastructure.
 This project sets up a vpc infrastructure for the platform. Based on a Scott Logic pre-rolled module, it can be configured to use a combination of public and private subnets, or only public ones. It can also optionally setup a NAT gateway for each private subnet.
 
 The module defines the notion of "instance" subnets. This is a convenience. If only public subnets are used, the instance subnets are those. If private and public ones are used, then the private ones are the "instance" ones. This allows e.g. an ECS cluster to use the private ones when so configured and  
+
+### Serverless
+
+If you're in a non-Linux environment, you need to set a PWD environment variable as that's not automatically set.
