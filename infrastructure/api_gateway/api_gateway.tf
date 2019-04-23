@@ -27,6 +27,11 @@ resource "aws_api_gateway_rest_api" "private_api" {
 }
 
 resource "aws_api_gateway_deployment" "stage" {
+  depends_on = [
+    "aws_api_gateway_integration_response.to_delete",
+    "aws_api_gateway_integration.to_delete",
+  ]
+
   rest_api_id = "${aws_api_gateway_rest_api.public_api.id}"
   stage_name  = "${terraform.workspace}"
 }
