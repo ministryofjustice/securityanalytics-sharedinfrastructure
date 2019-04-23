@@ -50,3 +50,9 @@ resource "aws_iam_role" "sec_an_user" {
     workspace = "${terraform.workspace}"
   }
 }
+
+# Annoying that we have to do this hear, rather than attach it when we setup analytics
+resource "aws_iam_role_policy_attachment" "es_user" {
+  role       = "${aws_iam_role.sec_an_user.name}"
+  policy_arn = "arn:aws:iam::aws:policy/AmazonESCognitoAccess"
+}
