@@ -55,19 +55,21 @@ It is advised that you use a separate [terraform workspace](https://www.terrafor
 
 You will need to do this for each part of the project. If you haven't set up a workspace you can do this with `terraform workspace new <workspace_name>` and select with `terraform workspace select <workspace_name>`.  If you are unsure if you have set up a workspace you can check this with `terraform workspace list`.
 
-IAM rules are required to be globally unique, the name is formed of the workspace and `-sec-an-users', if you experience a clash then you will have to choose a different workspace. With this in mind, choose a workspace name that has a high chance of being unique.
+The Cognito User Pool Domain is required to be globally unique, the name is formed of the workspace and `-sec-an-users', if you experience a clash then you will have to choose a different workspace. With this in mind, choose a workspace name that has a high chance of being unique.
 
-The project uses terraform for managing updates and roll outs, to do this safely with distributed users requires a shared notion of state and shared locks. Because there is a 🐔 and 🥚 issue there are two separate terraform projects in this one project. `terraform_backend` exists to setup this shared backend. It only needs to be run manually once to bootstrap the project.
+The workspace name is used in a variety of places as identifiers - to cater for limits of the AWS components that are used, you should use a name that is 16 characters or less.
 
-S3 requires bucket names to be globally unique, so when setting up your backend infrastructure, you will be prompted for a name - we use 'sec-an', however due to security you will have to use your own unique name here to create your own S3 bucket.
+The project uses terraform for managing updates and roll outs, to do this safely with distributed users requires a shared notion of state and shared locks. Because there is a 🐔 and 🥚 issue there are two separate terraform projects in this one project. `terraform_backend` exists to setup this shared backend. It only needs to be run manually once for the AWS account to bootstrap the project.
+
+S3 requires bucket names to be globally unique, so when setting up your backend infrastructure, you will be prompted for a name - we use 'sec-an', however this has access permissions, so you will have to use your own unique name here to create your own private S3 bucket.
 
 Terraform does not allow interpolations for backend setup, because of this limitation, whenever you call terraform init you will need to specify your S3 bucket in the command line, like this:
 
 ```
-terraform init -reconfigure -backend-config "bucket=<your bucket name>-terraform-state"
+terraform init -reconfigure -backend-config "bucket=<your_bucket_name>-terraform-state"
 ```
 
-If you don't do this, you'll hit a bucket that you don't have permissions to and get a 403 error. If this fails you may need to add the '-reconfigure' as well.
+If you don't do this, you'll hit an S3 bucket that you don't have permissions to and get a 403 error. If this fails you may need to add the `-reconfigure` to the init command for it to run.
 
 Your AWS account id is needed for most of the terraform infrastructure creation, you can save typing this in by putting a file called `account.auto.tfvars` in the same directory as your `.tf` file containing:
 ```
@@ -84,10 +86,19 @@ cd terraform_backend
 # select your workspace
 terraform workspace new <your_workspace>
 # you'll need to init afterwards whenever you add new providers in terraform
-terraform init -backend-config "bucket=<your bucket name>-terraform-state"
+terraform init -backend-config "bucket=<your_bucket_name>-terraform-state"
 terraform apply
 ```
-* Next do the same in the `infrastructure` directory of the Shared Infrastructure project
+* Next do the same in the `infrastructure` directory of the Shared Infrastructure project:
+```
+cd ../infrastructure
+# select your workspace
+terraform workspace new <your_workspace>
+# you'll need to init afterwards whenever you add new providers in terraform
+# if prompted to migrate all workspaces to S3 then respond with 'yes'
+terraform init -backend-config "bucket=<your_bucket_name>-terraform-state"
+terraform apply
+```
 * Now enter the `securityanalytics-sharedcode` directory, and deploy the lambda using serverless: `npx sls deploy --aws-profile=sec-an`
 * For this to work you should ensure that two environment variables are set `USERNAME`, and `PWD` which should be your current directory. This varies between Operating Systems and shells.
 * Next the analytics platform needs to be deployed, enter the `securityanalytics-analyticsplatform` directory, and deploy the terraform, and serverless. Deploying elasticsearch takes around 10 minutes, so grab yourself a drink and wait...
@@ -96,9 +107,11 @@ cd infrastructure
 # select your workspace
 terraform workspace new <your_workspace>
 # you'll need to init afterwards whenever you add new providers in terraform
-terraform init -backend-config "bucket=<your bucket name>-terraform-state"
-
+terraform init -backend-config "bucket=<your_bucket_name>-terraform-state"
 terraform apply
+
 # serverless
 cd ..
+# if you don't have the 'serverless-stack-output' plugin installed, install it first:
+npx sls plugin install --serverless-stack-output
 npx sls deploy --aws-profile=sec-an
