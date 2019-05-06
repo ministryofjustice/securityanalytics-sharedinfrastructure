@@ -46,7 +46,8 @@ You need to install the following:
 * [Serverless](https://serverless.com/) - this is currently used in some parts of the platform, although may be deprecated in future
 * [npx](https://www.npmjs.com/package/npx) - optional but will ensure dependencies are installed if not already installed
 * [Python](www.python.org) - the platform needs at least Python 3.7.0
-* Pipenv
+* [Pipenv](https://pypi.org/project/pipenv/)
+* [Docker](https://docs.docker.com/install/)
 * Amazon Web Services account
 
 ## Terraform workspaces
@@ -83,24 +84,28 @@ account_id=<your_account_id>
 * Once you've done this you can then run terraform:
 ```
 cd terraform_backend
-# select your workspace
-terraform workspace new <your_workspace>
+
 # you'll need to init afterwards whenever you add new providers in terraform
 terraform init -backend-config "bucket=<your_bucket_name>-terraform-state"
+# select your workspace
+terraform workspace new <your_workspace>
 terraform apply
 ```
 * Next do the same in the `infrastructure` directory of the Shared Infrastructure project:
 ```
 cd ../infrastructure
-# select your workspace
-terraform workspace new <your_workspace>
+
 # you'll need to init afterwards whenever you add new providers in terraform
 # if prompted to migrate all workspaces to S3 then respond with 'yes'
 terraform init -backend-config "bucket=<your_bucket_name>-terraform-state"
+# select your workspace
+terraform workspace new <your_workspace>cd 
 terraform apply
 ```
 * Now enter the `securityanalytics-sharedcode` directory, and deploy the lambda using serverless: `npx sls deploy --aws-profile=sec-an`
-* For this to work you should ensure that two environment variables are set `USERNAME`, and `PWD` which should be your current directory. This varies between Operating Systems and shells.
+* For this to work you should ensure that two environment variables:
+  *  `PWD` - this should be your current directory. 
+  *  `USERNAME` - this **must** match the same name you used for your workspace as serverless interacts with SSM variables using this variable
 * Next the analytics platform needs to be deployed, enter the `securityanalytics-analyticsplatform` directory, and deploy the terraform, and serverless. Deploying elasticsearch takes around 10 minutes, so grab yourself a drink and wait...
 ```
 cd infrastructure
@@ -113,5 +118,38 @@ terraform apply
 # serverless
 cd ..
 # if you don't have the 'serverless-stack-output' plugin installed, install it first:
-npx sls plugin install --serverless-stack-output
+npm install serverless-stack-output
+# if you don't have the 'serverless-python-requirements' plugin installed, install it first:
+npm install serverless-python-requirements
+# if you don't have the 'serverless-plugin-export-endpoints' plugin installed, install it first:
+npm install serverless-plugin-export-endpoints
+# if you don't have the 'serverless-offline' plugin installed, install it first:
+npm install serverless-offline
+
+# if you haven't already, you'll need to install pipenv and docker now!
+
+mkdir .generated
 npx sls deploy --aws-profile=sec-an
+
+
+** Build the nmap scanning task
+* This task requires some Python libraries to be installed first:
+```
+pip3 install boto3
+pip3 install requests_aws4auth
+
+* Enter the `securityanalytics-nmapscanner` directory, and build the infrastructure:
+```
+cd ../infrastructure
+
+# you'll need to init afterwards whenever you add new providers in terraform
+# if prompted to migrate all workspaces to S3 then respond with 'yes'
+terraform init -backend-config "bucket=<your_bucket_name>-terraform-state"
+# select your workspace
+terraform workspace new <your_workspace>
+terraform get --update
+terraform apply
+```
+
+* 'python' needs to execute python3
+*  problem with old_index_hash on first execution - commented out data external current_index in index.tf 
