@@ -46,7 +46,7 @@ You need to install the following:
 * [Python](www.python.org) - the platform needs at least Python 3.7.0
 * [Pipenv](https://pypi.org/project/pipenv/)
 * [Docker](https://docs.docker.com/install/)
-* Amazon Web Services account
+* Amazon Web Services account and [AWS command line tools]()
 
 ## Terraform workspaces
 
@@ -77,14 +77,14 @@ account_id=<your_account_id>
 
 ## Build steps
 
-* Make sure you have your AWS credentials setup. Terraform will need this to setup the infrastructure in AWS.  In your `.aws/credentials` file set up credentials for profile `sec-an` - these credentials are used across terraform when building the platform.
+* Make sure you have your AWS credentials setup. Terraform will need this to setup the infrastructure in AWS.  In your `.aws/credentials` file set up credentials for profile `sec-an` using `aws configure --profile=sec-an` - these credentials are used across terraform when building the platform.  
 ### Shared Infrastructure
-* Start in the `securityanalytics-sharedinfrastructure` directory.  You will first need to create the back end infrastructure first. Since S3 requires bucket names to be globally unique, you can either set an `s3_app_name` in an auto.tfvars file, or type it in when requested by terraform.  Remember this name as you'll be using it when building the platform.
+* Start in the `securityanalytics-sharedinfrastructure` directory.  You will first need to create the back end infrastructure. Since S3 requires bucket names to be globally unique, you can either set an `s3_app_name` in an auto.tfvars file, or type it in when requested by terraform.  Remember this name as you'll be using it when building the rest of the platform.
 * Once you've done this you can then run terraform:
 ```
 cd terraform_backend
 
-# you'll need to init afterwards whenever you add new providers in terraform
+# you'll need to init whenever you add new providers in terraform
 terraform init -backend-config "bucket=<your_bucket_name>-terraform-state"
 # select your workspace
 terraform workspace new <your_workspace>
@@ -94,26 +94,29 @@ terraform apply
 ```
 cd ../infrastructure
 
-# you'll need to init afterwards whenever you add new providers in terraform
+# you'll need to init whenever you add new providers in terraform
 # if prompted to migrate all workspaces to S3 then respond with 'yes'
 terraform init -backend-config "bucket=<your_bucket_name>-terraform-state"
 # select your workspace
-terraform workspace new <your_workspace>cd 
+terraform workspace new <your_workspace>
 terraform apply
 ```
 ### Shared Code
-* Now enter the `securityanalytics-sharedcode` directory, and deploy the lambda using serverless: `npx sls deploy --aws-profile=sec-an`
+* Now enter the `securityanalytics-sharedcode` directory, and deploy the lambda using serverless: 
+```
+npx sls deploy --aws-profile=sec-an
+```
 * For this to work you should ensure that two environment variables are set correctly:
   *  `PWD` - this should be your current directory. 
   *  `USERNAME` - this **must** match the same name you used for your workspace as serverless interacts with SSM variables using this variable
 
 ### Analytics Platform
-* Next the analytics platform needs to be deployed, enter the `securityanalytics-analyticsplatform` directory, and deploy the terraform, and serverless. Deploying elasticsearch takes around 10 minutes, so grab yourself a drink and wait...
+* Next the analytics platform needs to be deployed, enter the `securityanalytics-analyticsplatform` directory, and deploy the terraform, and serverless. When deploying the infrastructure, elasticsearch takes around 10 minutes, so grab yourself a drink and wait...
 ```
 cd infrastructure
 # select your workspace
 terraform workspace new <your_workspace>
-# you'll need to init afterwards whenever you add new providers in terraform
+# you'll need to init whenever you add new providers in terraform
 terraform init -backend-config "bucket=<your_bucket_name>-terraform-state"
 terraform apply
 
@@ -139,11 +142,18 @@ npx sls deploy --aws-profile=sec-an
 pip3 install boto3
 pip3 install requests_aws4auth
 ```
-* Enter the `securityanalytics-nmapscanner` directory. If you have both Python 2 and Python 3 installed you might need to edit the `python` references in elastic_resources/index.tf to be `python3`. Buid the infrastructure:
+* Enter the `securityanalytics-nmapscanner` directory. If you have both Python 2 and Python 3 installed you might need to edit the `python` references in elastic_resources/index.tf to be `python3`. 
+* You should now define the hosts you want to scan, by default `scanme.nmap.org` is scanned, you can override this by adding a `scan_hosts.auto.tfvar` file that contains:
+```
+scan_hosts = [
+    'host1',
+    'host2]
+```
+* Now build the infrastructure:
 ```
 cd ../infrastructure
 
-# you'll need to init afterwards whenever you add new providers in terraform
+# you'll need to init whenever you add new providers in terraform
 # if prompted to migrate all workspaces to S3 then respond with 'yes'
 terraform init -backend-config "bucket=<your_bucket_name>-terraform-state"
 # select your workspace
@@ -160,4 +170,12 @@ git submodule sync
 npx sls deploy --aws-profile=sec-an
 npx sls s3deploy --aws-profile=sec-an
 ```
-* During development if you're also editing the securityanalytics-taskexecution ecs_task code, you can make the module point to your local version in `infrastructure.tf` by commenting out the `source` variable and uncommenting the local version
+* During development if you're also editing the `securityanalytics-taskexecution` `ecs_task` code, you can make the module point to your local version in `infrastructure.tf` by commenting out the `source` variable and uncommenting the local version
+
+### Deployment complete
+
+Your deployment is now complete.
+
+In AWS, you will see a set of rules created for scanning each of your hosts once per hour - these are randomly distributed across the hour.  At most 15 tasks are set up, due to the limitation of 100 rules per account on AWS - once a scheduler is in place we will no longer be using this system.
+
+You will also see that documents populate Elasticsearch once the scan tasks run - you can view these in Kibana after setting up a user in the Cognito user pool to set up login credentials for Kibana.
