@@ -132,15 +132,13 @@ npm install serverless-offline
 
 mkdir .generated
 npx sls deploy --aws-profile=sec-an
-
-
-** Build the nmap scanning task
+```
+### Nmap scanner
 * This task requires some Python libraries to be installed first:
 ```
 pip3 install boto3
 pip3 install requests_aws4auth
-
-### Nmap scanner
+```
 * Enter the `securityanalytics-nmapscanner` directory. If you have both Python 2 and Python 3 installed you might need to edit the `python` references in elastic_resources/index.tf to be `python3`. Buid the infrastructure:
 ```
 cd ../infrastructure
