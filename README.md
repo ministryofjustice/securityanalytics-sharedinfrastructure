@@ -5,7 +5,7 @@
 
 This project holds infrastructure used by all other components of the security analytics platform.
 
-This document also serves as a starting point if you are new to the project and want to get the [platform setup](#platform-setup)
+This document also serves as a starting point if you are new to the project and want to follow the [platform setup](#platform-setup) guide.
 
 
 ## Infrastructure
@@ -20,9 +20,7 @@ The module defines the notion of "instance" subnets. This is a convenience. If o
 
 ### Serverless
 
-If you're in a non-Linux environment, you need to set a PWD environment variable as that's not automatically set.
-
-Also in Windows, you'll need to make sure you share your C: drive (or wherever you're running from) with Docker otherwise Serverless will fail to run.
+If you are using Windows, you'll need to make sure you share your C: drive (or wherever you're running from) with Docker otherwise Serverless will fail to run.
 
 # Platform Setup
 
@@ -103,7 +101,7 @@ terraform workspace new <your_workspace>cd
 terraform apply
 ```
 * Now enter the `securityanalytics-sharedcode` directory, and deploy the lambda using serverless: `npx sls deploy --aws-profile=sec-an`
-* For this to work you should ensure that two environment variables:
+* For this to work you should ensure that two environment variables are set correctly:
   *  `PWD` - this should be your current directory. 
   *  `USERNAME` - this **must** match the same name you used for your workspace as serverless interacts with SSM variables using this variable
 * Next the analytics platform needs to be deployed, enter the `securityanalytics-analyticsplatform` directory, and deploy the terraform, and serverless. Deploying elasticsearch takes around 10 minutes, so grab yourself a drink and wait...
@@ -138,7 +136,7 @@ npx sls deploy --aws-profile=sec-an
 pip3 install boto3
 pip3 install requests_aws4auth
 
-* Enter the `securityanalytics-nmapscanner` directory, and build the infrastructure:
+* Enter the `securityanalytics-nmapscanner` directory. If you have both Python 2 and Python 3 installed you might need to edit the `python` references in elastic_resources/index.tf to be `python3`. Buid the infrastructure:
 ```
 cd ../infrastructure
 
@@ -150,6 +148,13 @@ terraform workspace new <your_workspace>
 terraform get --update
 terraform apply
 ```
-
-* 'python' needs to execute python3
-*  problem with old_index_hash on first execution - commented out data external current_index in index.tf 
+* Build the scanner and deploy with Serverless:
+```
+cd ..
+# get the latest taskexecution shared code from github
+git submodule update --remote
+git submodule sync
+npx sls deploy --aws-profile=sec-an
+npx sls s3deploy --aws-profile=sec-an
+```
+* During development if you're also editing the securityanalytics-taskexecution ecs_task code, you can make the module point to your local version in `infrastructure.tf` by commenting out the `source` variable and uncommenting the local version
