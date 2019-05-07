@@ -48,7 +48,11 @@ You need to install the following:
 * [Docker](https://docs.docker.com/install/)
 * Amazon Web Services account and [AWS command line tools]()
 
-## Terraform workspaces
+## Terraform
+
+The project uses terraform for managing updates and roll outs, to do this safely with distributed users requires a shared notion of state and shared locks. Because there is a 🐔 and 🥚 issue there are two separate terraform projects in this one project. `terraform_backend` exists to setup this shared backend. It only needs to be run manually once for the AWS account to bootstrap the project.
+
+### Terraform workspaces and unique names
 
 It is advised that you use a separate [terraform workspace](https://www.terraform.io/docs/enterprise/workspaces/index.html) if you are collaborating with others on the same AWS account.
 
@@ -57,8 +61,6 @@ You will need to do this for each part of the project. If you haven't set up a w
 The Cognito User Pool Domain is required to be globally unique, the name is formed of the workspace and `-sec-an-users', if you experience a clash then you will have to choose a different workspace. With this in mind, choose a workspace name that has a high chance of being unique.
 
 The workspace name is used in a variety of places as identifiers - to cater for limits of the AWS components that are used, you should use a name that is 16 characters or less.
-
-The project uses terraform for managing updates and roll outs, to do this safely with distributed users requires a shared notion of state and shared locks. Because there is a 🐔 and 🥚 issue there are two separate terraform projects in this one project. `terraform_backend` exists to setup this shared backend. It only needs to be run manually once for the AWS account to bootstrap the project.
 
 S3 requires bucket names to be globally unique, so when setting up your backend infrastructure, you will be prompted for a name - we use 'sec-an', however this has access permissions, so you will have to use your own unique name here to create your own private S3 bucket.
 
