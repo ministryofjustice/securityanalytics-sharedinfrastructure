@@ -77,8 +77,9 @@ account_id=<your_account_id>
 
 ## Build steps
 
-* Make sure you have your AWS credentials setup. Terraform will need this to setup the infrastructure in AWS.  In your `.aws/credentials` file set up credentials for profile `sec-an`
-* Start in the `securityanalytics-sharedinfrastructure` directory.  You will first need to create the back end infrastructure first. Since S3 requires bucket names to be globally unique, you can either set an `s3_app_name` in an auto.tfvars file, or type it in when requested by terraform.  Remember this name as you'll be using it across your project.
+* Make sure you have your AWS credentials setup. Terraform will need this to setup the infrastructure in AWS.  In your `.aws/credentials` file set up credentials for profile `sec-an` - these credentials are used across terraform when building the platform.
+### Shared Infrastructure
+* Start in the `securityanalytics-sharedinfrastructure` directory.  You will first need to create the back end infrastructure first. Since S3 requires bucket names to be globally unique, you can either set an `s3_app_name` in an auto.tfvars file, or type it in when requested by terraform.  Remember this name as you'll be using it when building the platform.
 * Once you've done this you can then run terraform:
 ```
 cd terraform_backend
@@ -100,10 +101,13 @@ terraform init -backend-config "bucket=<your_bucket_name>-terraform-state"
 terraform workspace new <your_workspace>cd 
 terraform apply
 ```
+### Shared Code
 * Now enter the `securityanalytics-sharedcode` directory, and deploy the lambda using serverless: `npx sls deploy --aws-profile=sec-an`
 * For this to work you should ensure that two environment variables are set correctly:
   *  `PWD` - this should be your current directory. 
   *  `USERNAME` - this **must** match the same name you used for your workspace as serverless interacts with SSM variables using this variable
+
+### Analytics Platform
 * Next the analytics platform needs to be deployed, enter the `securityanalytics-analyticsplatform` directory, and deploy the terraform, and serverless. Deploying elasticsearch takes around 10 minutes, so grab yourself a drink and wait...
 ```
 cd infrastructure
@@ -136,6 +140,7 @@ npx sls deploy --aws-profile=sec-an
 pip3 install boto3
 pip3 install requests_aws4auth
 
+### Nmap scanner
 * Enter the `securityanalytics-nmapscanner` directory. If you have both Python 2 and Python 3 installed you might need to edit the `python` references in elastic_resources/index.tf to be `python3`. Buid the infrastructure:
 ```
 cd ../infrastructure
