@@ -50,6 +50,19 @@ resource "aws_ssm_parameter" "private_api_id" {
   }
 }
 
+resource "aws_ssm_parameter" "private_api_name" {
+  name        = "/${var.app_name}/${terraform.workspace}/api/private/name"
+  description = "Private Api gateway name"
+  type        = "String"
+  value       = "${aws_api_gateway_rest_api.private_api.name}"
+  overwrite   = "true"
+
+  tags {
+    app_name  = "${var.app_name}"
+    workspace = "${terraform.workspace}"
+  }
+}
+
 resource "aws_ssm_parameter" "private_api_root" {
   name        = "/${var.app_name}/${terraform.workspace}/api/private/root"
   description = "Private Api gateway root resource id"
