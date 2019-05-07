@@ -12,6 +12,10 @@ This document also serves as a starting point if you are new to the project and 
 
 This is the main terraform project that provides the shared infrastructure.
 
+### Terraform
+
+The project uses terraform for managing updates and roll outs, to do this safely with distributed users requires a shared notion of state and shared locks. Because there is a 🐔 and 🥚 issue there are two separate terraform projects in this one project. `terraform_backend` exists to setup this shared backend. It only needs to be run manually once for the AWS account to bootstrap the project.
+
 ### VPC
 
 This project sets up a vpc infrastructure for the platform. Based on a Scott Logic pre-rolled module, it can be configured to use a combination of public and private subnets, or only public ones. It can also optionally setup a NAT gateway for each private subnet.
@@ -48,11 +52,7 @@ You need to install the following:
 * [Docker](https://docs.docker.com/install/)
 * Amazon Web Services account and [AWS command line tools]()
 
-## Terraform
-
-The project uses terraform for managing updates and roll outs, to do this safely with distributed users requires a shared notion of state and shared locks. Because there is a 🐔 and 🥚 issue there are two separate terraform projects in this one project. `terraform_backend` exists to setup this shared backend. It only needs to be run manually once for the AWS account to bootstrap the project.
-
-### Terraform workspaces and unique names
+## Terraform workspaces and unique names
 
 It is advised that you use a separate [terraform workspace](https://www.terraform.io/docs/enterprise/workspaces/index.html) if you are collaborating with others on the same AWS account.
 
@@ -104,13 +104,14 @@ terraform workspace new <your_workspace>
 terraform apply
 ```
 ### Shared Code
-* Now enter the `securityanalytics-sharedcode` directory, and deploy the lambda using serverless: 
+* Now enter the `securityanalytics-sharedcode` directory
+* This is the first time Serverless is used during this process, so first you should ensure that two environment variables are set correctly:
+  *  `PWD` - this should be your current directory. 
+  *  `USERNAME` - this **must** match the same name you used for your workspace as serverless interacts with SSM variables using this variable
+* Once you've done this, deploy the lambda using serverless: 
 ```
 npx sls deploy --aws-profile=sec-an
 ```
-* For this to work you should ensure that two environment variables are set correctly:
-  *  `PWD` - this should be your current directory. 
-  *  `USERNAME` - this **must** match the same name you used for your workspace as serverless interacts with SSM variables using this variable
 
 ### Analytics Platform
 * Next the analytics platform needs to be deployed, enter the `securityanalytics-analyticsplatform` directory, and deploy the terraform, and serverless. When deploying the infrastructure, elasticsearch takes around 10 minutes, so grab yourself a drink and wait...
