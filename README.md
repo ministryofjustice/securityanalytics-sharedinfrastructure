@@ -77,7 +77,7 @@ Your AWS account id is needed for most of the terraform infrastructure creation,
 account_id=<your_account_id>
 ```
 
-## Build steps
+## Build/deployment steps
 
 * Make sure you have your AWS credentials setup. Terraform will need this to setup the infrastructure in AWS.  In your `.aws/credentials` file set up credentials for profile `sec-an` using `aws configure --profile=sec-an` - these credentials are used across terraform when building the platform.  
 ### Shared Infrastructure
@@ -149,12 +149,12 @@ pip3 install requests_aws4auth
 * You should now define the hosts you want to scan, by default `scanme.nmap.org` is scanned, you can override this by adding a `scan_hosts.auto.tfvar` file that contains:
 ```
 scan_hosts = [
-    'host1',
-    'host2]
+    "host1",
+    "host2"]
 ```
 * Now build the infrastructure:
 ```
-cd ../infrastructure
+cd infrastructure
 
 # you'll need to init whenever you add new providers in terraform
 # if prompted to migrate all workspaces to S3 then respond with 'yes'
