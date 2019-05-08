@@ -127,7 +127,7 @@ git submodule sync
 # you'll need to init whenever you add new providers in terraform
 terraform init -backend-config "bucket=<your_bucket_name>-terraform-state"
 terraform apply
-
+```
 
 ### Nmap scanner
 * This task requires some Python libraries to be installed first:
