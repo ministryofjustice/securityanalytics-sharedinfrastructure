@@ -6,6 +6,8 @@ variable "aws_region" {
   default = "eu-west-2" # london
 }
 
+variable "s3_app_name" {}
+
 variable "app_name" {
   default = "sec-an"
 }
@@ -20,7 +22,7 @@ provider "aws" {
 #############################################
 
 resource "aws_s3_bucket" "bucket" {
-  bucket = "${var.app_name}-terraform-state"
+  bucket = "${var.s3_app_name}-terraform-state"
 
   tags = {
     app_name = "${var.app_name}"
