@@ -113,19 +113,39 @@ terraform init -backend-config "bucket=<your_bucket_name>-terraform-state"
 terraform workspace new <your_workspace>
 terraform apply
 ```
+### Task Execution
+* Now enter the `securityanalytics-taskexecution` directory to set up the ECS cluster for running scanning tasks on
+* Use terraform to initalise the infrastructure for this project:
+```
+cd ../infrastructure
+
+# you'll need to init whenever you add new providers in terraform
+# if prompted to migrate all workspaces to S3 then respond with 'yes'
+terraform init -backend-config "bucket=<your_bucket_name>-terraform-state"
+# select your workspace
+terraform workspace new <your_workspace>
+terraform apply
+```  
 
 ### Analytics Platform
 * Next the analytics platform needs to be deployed, enter the `securityanalytics-analyticsplatform` directory, and deploy the terraform. When deploying the infrastructure, elasticsearch takes around 10 minutes, so grab yourself a drink and wait...
 ```
-cd infrastructure
-# select your workspace
-terraform workspace new <your_workspace>
-# update with the latest shared code:
+# update with the latest shared code first:
+git submodule init
 git submodule update --remote
 git submodule sync
 
+# setup pipenv
+# this works for Powershell, if you are using a different shell, set the environment variable accordingly:
+$Env:PIPENV_VENV_IN_PROJECT="true"
+pipenv install --dev
+
+cd infrastructure
+
 # you'll need to init whenever you add new providers in terraform
 terraform init -backend-config "bucket=<your_bucket_name>-terraform-state"
+# select your workspace
+terraform workspace new <your_workspace>
 terraform apply
 ```
 
@@ -146,8 +166,15 @@ scan_hosts = [
 ```
 
 # get the latest taskexecution shared code from github
+git submodule init
 git submodule update --remote
 git submodule sync
+
+# setup pipenv
+# this works for Powershell, if you are using a different shell, set the environment variable accordingly:
+$Env:PIPENV_VENV_IN_PROJECT="true"
+pipenv install --dev
+
 cd infrastructure
 # you'll need to init whenever you add new providers in terraform
 # if prompted to migrate all workspaces to S3 then respond with 'yes'
