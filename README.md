@@ -22,9 +22,7 @@ This project sets up a vpc infrastructure for the platform. Based on a Scott Log
 
 The module defines the notion of "instance" subnets. This is a convenience. If only public subnets are used, the instance subnets are those. If private and public ones are used, then the private ones are the "instance" ones. This allows e.g. an ECS cluster to use the private ones when so configured and  
 
-### Serverless
 
-If you are using Windows, you'll need to make sure you share your C: drive (or wherever you're running from) with Docker otherwise Serverless will fail to run.
 
 # Platform Setup
 
@@ -45,7 +43,6 @@ The platform is split into a number of github repositories, allowing elements to
 You need to install the following:
 
 * [Terraform](https://www.terraform.io/downloads.html) - the platform is currently built using Terraform v0.11.x
-* [Serverless](https://serverless.com/) - this is currently used in some parts of the platform, although may be deprecated in future
 * [npx](https://www.npmjs.com/package/npx) - optional but will ensure dependencies are installed if not already installed
 * [Python](www.python.org) - the platform needs at least Python 3.7.0
 * [Pipenv](https://pypi.org/project/pipenv/)
@@ -118,7 +115,7 @@ terraform apply
 ```
 
 ### Analytics Platform
-* Next the analytics platform needs to be deployed, enter the `securityanalytics-analyticsplatform` directory, and deploy the terraform, and serverless. When deploying the infrastructure, elasticsearch takes around 10 minutes, so grab yourself a drink and wait...
+* Next the analytics platform needs to be deployed, enter the `securityanalytics-analyticsplatform` directory, and deploy the terraform. When deploying the infrastructure, elasticsearch takes around 10 minutes, so grab yourself a drink and wait...
 ```
 cd infrastructure
 # select your workspace
