@@ -105,12 +105,16 @@ terraform apply
 ```
 ### Shared Code
 * Now enter the `securityanalytics-sharedcode` directory
-* This is the first time Serverless is used during this process, so first you should ensure that two environment variables are set correctly:
-  *  `PWD` - this should be your current directory. 
-  *  `USERNAME` - this **must** match the same name you used for your workspace as serverless interacts with SSM variables using this variable
-* Once you've done this, deploy the lambda using serverless: 
+* Use terraform to initalise the infrastructure for this project:
 ```
-npx sls deploy --aws-profile=sec-an
+cd ../infrastructure
+
+# you'll need to init whenever you add new providers in terraform
+# if prompted to migrate all workspaces to S3 then respond with 'yes'
+terraform init -backend-config "bucket=<your_bucket_name>-terraform-state"
+# select your workspace
+terraform workspace new <your_workspace>
+terraform apply
 ```
 
 ### Analytics Platform
@@ -119,26 +123,15 @@ npx sls deploy --aws-profile=sec-an
 cd infrastructure
 # select your workspace
 terraform workspace new <your_workspace>
+# update with the latest shared code:
+git submodule update --remote
+git submodule sync
+
 # you'll need to init whenever you add new providers in terraform
 terraform init -backend-config "bucket=<your_bucket_name>-terraform-state"
 terraform apply
 
-# serverless
-cd ..
-# if you don't have the 'serverless-stack-output' plugin installed, install it first:
-npm install serverless-stack-output
-# if you don't have the 'serverless-python-requirements' plugin installed, install it first:
-npm install serverless-python-requirements
-# if you don't have the 'serverless-plugin-export-endpoints' plugin installed, install it first:
-npm install serverless-plugin-export-endpoints
-# if you don't have the 'serverless-offline' plugin installed, install it first:
-npm install serverless-offline
 
-# if you haven't already, you'll need to install pipenv and docker now!
-
-mkdir .generated
-npx sls deploy --aws-profile=sec-an
-```
 ### Nmap scanner
 * This task requires some Python libraries to be installed first:
 ```
@@ -154,8 +147,11 @@ scan_hosts = [
 ```
 * Now build the infrastructure:
 ```
-cd infrastructure
 
+# get the latest taskexecution shared code from github
+git submodule update --remote
+git submodule sync
+cd infrastructure
 # you'll need to init whenever you add new providers in terraform
 # if prompted to migrate all workspaces to S3 then respond with 'yes'
 terraform init -backend-config "bucket=<your_bucket_name>-terraform-state"
@@ -164,15 +160,7 @@ terraform workspace new <your_workspace>
 terraform get --update
 terraform apply
 ```
-* Build the scanner and deploy with Serverless:
-```
-cd ..
-# get the latest taskexecution shared code from github
-git submodule update --remote
-git submodule sync
-npx sls deploy --aws-profile=sec-an
-npx sls s3deploy --aws-profile=sec-an
-```
+
 * During development if you're also editing the `securityanalytics-taskexecution` `ecs_task` code, you can make the module point to your local version in `infrastructure.tf` by commenting out the `source` variable and uncommenting the local version
 
 ### Deployment complete
@@ -182,3 +170,8 @@ Your deployment is now complete.
 In AWS, you will see a set of rules created for scanning each of your hosts once per hour - these are randomly distributed across the hour.  At most 15 tasks are set up, due to the limitation of 100 rules per account on AWS - once a scheduler is in place we will no longer be using this system.
 
 You will also see that documents populate Elasticsearch once the scan tasks run - you can view these in Kibana after setting up a user in the Cognito user pool to set up login credentials for Kibana.
+
+## Installation notes
+
+As the project evolves you might find your installation/update failing if so, here are some things that were observed when creating this documentation:
+* If there are fundamdenta changes to the structure of the project in the future, your calls to `terraform init` may fail if there are dependency changes, if this happens try `terraform init -upgrade` which will cause modules to be reininitialised.

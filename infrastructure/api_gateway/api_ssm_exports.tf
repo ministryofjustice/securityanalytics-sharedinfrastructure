@@ -62,3 +62,16 @@ resource "aws_ssm_parameter" "private_api_root" {
     workspace = "${terraform.workspace}"
   }
 }
+
+resource "aws_ssm_parameter" "private_api_name" {
+  name        = "/${var.app_name}/${terraform.workspace}/api/private/name"
+  description = "Private Api gateway name"
+  type        = "String"
+  value       = "${terraform.workspace}-${var.app_name}-private-api"
+  overwrite   = "true"
+
+  tags {
+    app_name  = "${var.app_name}"
+    workspace = "${terraform.workspace}"
+  }
+}
