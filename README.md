@@ -195,6 +195,17 @@ In AWS, you will see a set of rules created for scanning each of your hosts once
 
 You will also see that documents populate Elasticsearch once the scan tasks run - you can view these in Kibana after setting up a user in the Cognito user pool to set up login credentials for Kibana.
 
+### End to end test
+
+As part of the deployment of the nmap scanner, the host(s) you setup would be at a random minute past the hour, every hour. If you want to check your deployment was successful you can manually push a task:
+* Go to SQS in the AWS console
+* In your <workspace>-sec-an-nmap-trigger queue, send a message. The format can be any of:
+  * `hostname.sample` - this will run a scan against one host
+  * `{"CloudWatchEventHosts":["hostname1.sample", "hostname2.sample", "hostname3.sample"]}` - this will create three separate tasks, one for each host specified, which is the advised way to scan more than one host
+  * `hostname1.sample hostname2.sample hostname3.sample` - this will run nmap with three hosts as the parameter - this is not advised as when this is run, if there are any delays, the back off may cause the task to run for a long time
+  * `{"CloudWatchEventHosts":["hostname1.sample hostname2.sample hostname3.sample"]}` - whilst this format is supported, it's not advised!
+* It will take time for the tasks to complete (1-2 minutes) and for the results to appear in Kibana - you can watch the progress in the CloudWatch logs associated with the running lambdas.
+
 ## Installation notes
 
 As the project evolves you might find your installation/update failing if so, here are some things that were observed when creating this documentation:
