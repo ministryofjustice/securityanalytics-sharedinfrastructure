@@ -67,3 +67,8 @@ module "api_gateway" {
   app_name      = "${var.app_name}"
   user_pool_arn = "${module.user_pool.user_pool_arn}"
 }
+
+module "monitoring" {
+  source   = "monitoring"
+  app_name = "${var.app_name}"
+}
