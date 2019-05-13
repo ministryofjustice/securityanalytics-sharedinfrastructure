@@ -31,7 +31,8 @@ jobs:
       - run:
           name: terraform
           command: |
-            terraform init
+            echo 'export BUCKET="bucket=$APP_NAME-terraform-state"' >> $BASH_ENV
+            terraform init -backend-config $BUCKET
             # N.B. Don't need a per branch workspace, because we only ever deploy this to dev env
             # If in the future we add integration tests (probably should), we should do integration tests in a per
             # branch workspace like the other projects do.
@@ -39,7 +40,7 @@ jobs:
             echo checking formatting
             terraform fmt -check=true
             echo making the plan
-            terraform plan -var account_id=$ACCOUNT_ID -no-color -out=plan.file > terraform.plan
+            terraform plan -var account_id=$ACCOUNT_ID -var app_name=$APP_NAME -no-color -out=plan.file > terraform.plan
 
       - persist_to_workspace:
           root: .
@@ -68,7 +69,7 @@ jobs:
       - attach_workspace:
           at: .
       - run:
-          name: terraform apply
+          name: terraform apply -var app_name=$APP_NAME
           command: terraform apply plan.file
 
 workflows:

@@ -51,13 +51,13 @@ You need to install the following:
 
 ## Terraform workspaces and unique names
 
-It is advised that you use a separate [terraform workspace](https://www.terraform.io/docs/enterprise/workspaces/index.html) if you are collaborating with others on the same AWS account.
+It is advised that you use a separate [terraform workspace](https://www.terraform.io/docs/enterprise/workspaces/index.html) across each part of the project, if you are collaborating with others on the same AWS account.
 
-You will need to do this for each part of the project. If you haven't set up a workspace you can do this with `terraform workspace new <workspace_name>` and select with `terraform workspace select <workspace_name>`.  If you are unsure if you have set up a workspace you can check this with `terraform workspace list`.
+The workspace name is used in a variety of places as identifiers - to cater for limits of the AWS components that are used, you should use a name that is **16 characters or less**.
 
-The Cognito User Pool Domain is required to be globally unique, the name is formed of the workspace and `-sec-an-users', if you experience a clash then you will have to choose a different workspace. With this in mind, choose a workspace name that has a high chance of being unique.
+You will need to do set the same workspace for each part of the project. If you haven't set up a workspace you can do this with `terraform workspace new <workspace_name>` and select with `terraform workspace select <workspace_name>`.  If you are unsure if you have set up a workspace you can check this with `terraform workspace list`.
 
-The workspace name is used in a variety of places as identifiers - to cater for limits of the AWS components that are used, you should use a name that is 16 characters or less.
+The Cognito User Pool Domain, and S3 bucket names, are required to be globally unique, the name is formed of the workspace and `-sec-an-users', if you experience a clash then you will have to choose a different workspace. With this in mind, choose a workspace name that has a high chance of being unique.
 
 S3 requires bucket names to be globally unique, so when setting up your backend infrastructure, you will be prompted for a name - we use 'sec-an', however this has access permissions, so you will have to use your own unique name here to create your own private S3 bucket.
 
@@ -78,20 +78,26 @@ account_id=<your_account_id>
 
 * Make sure you have your AWS credentials setup. Terraform will need this to setup the infrastructure in AWS.  In your `.aws/credentials` file set up credentials for profile `sec-an` using `aws configure --profile=sec-an` - these credentials are used across terraform when building the platform.  
 ### Shared Infrastructure
-* Start in the `securityanalytics-sharedinfrastructure` directory.  You will first need to create the back end infrastructure. Since S3 requires bucket names to be globally unique, you can either set an `s3_app_name` in an auto.tfvars file, or type it in when requested by terraform.  Remember this name as you'll be using it when building the rest of the platform.
-* Once you've done this you can then run terraform:
+* Start in the `securityanalytics-sharedinfrastructure` directory.  
+  
+#### Back-end Infrastructure
+* **You only need to do this once per group of terraform users - this infrastructure is shared across all users.**
+* Since S3 requires bucket names to be globally unique, you can either set an `backend_bucket` in an auto.tfvars file, or type it in when requested by terraform.  Remember this name as you'll be using it when building the rest of the platform.
+   Once you've done this you can then run terraform:
 ```
 cd terraform_backend
 
 # you'll need to init whenever you add new providers in terraform
-terraform init -backend-config "bucket=<your_bucket_name>-terraform-state"
+terraform init 
 # select your workspace
 terraform workspace new <your_workspace>
 terraform apply
 ```
-* Next do the same in the `infrastructure` directory of the Shared Infrastructure project:
+
+#### Per-user Infrastructure
+* Next build the infrastructure for your user, in the `infrastructure` directory of the Shared Infrastructure project:
 ```
-cd ../infrastructure
+cd infrastructure
 
 # you'll need to init whenever you add new providers in terraform
 # if prompted to migrate all workspaces to S3 then respond with 'yes'
@@ -100,11 +106,12 @@ terraform init -backend-config "bucket=<your_bucket_name>-terraform-state"
 terraform workspace new <your_workspace>
 terraform apply
 ```
+
 ### Shared Code
 * Now enter the `securityanalytics-sharedcode` directory
 * Use terraform to initalise the infrastructure for this project:
 ```
-cd ../infrastructure
+cd infrastructure
 
 # you'll need to init whenever you add new providers in terraform
 # if prompted to migrate all workspaces to S3 then respond with 'yes'
@@ -117,7 +124,7 @@ terraform apply
 * Now enter the `securityanalytics-taskexecution` directory to set up the ECS cluster for running scanning tasks on
 * Use terraform to initalise the infrastructure for this project:
 ```
-cd ../infrastructure
+cd infrastructure
 
 # you'll need to init whenever you add new providers in terraform
 # if prompted to migrate all workspaces to S3 then respond with 'yes'
@@ -127,21 +134,24 @@ terraform workspace new <your_workspace>
 terraform apply
 ```  
 
-### Analytics Platform
-* Next the analytics platform needs to be deployed, enter the `securityanalytics-analyticsplatform` directory, and deploy the terraform. When deploying the infrastructure, elasticsearch takes around 10 minutes, so grab yourself a drink and wait...
+### Build steps for other projects
+
+For the rest of the steps, the build process is this same:
+* First set up your environment variable `PIPENV_VENV_IN_PROJECT` to `true`:
+  * Linux: `export PIPENV_VENV_IN_PROJECT=true`
+  * Powershell: `$Env:PIPENV_VENV_IN_PROJECT="true"`
+
 ```
 # update with the latest shared code first:
 git submodule init
 git submodule update --remote
 git submodule sync
 
-# setup pipenv
-# this works for Powershell, if you are using a different shell, set the environment variable accordingly:
-$Env:PIPENV_VENV_IN_PROJECT="true"
+# setup pipenv (make sure PIPENV_VENV_IN_PROJECT is set to true first)
 pipenv install --dev
+pipenv shell
 
 cd infrastructure
-
 # you'll need to init whenever you add new providers in terraform
 terraform init -backend-config "bucket=<your_bucket_name>-terraform-state"
 # select your workspace
@@ -149,12 +159,11 @@ terraform workspace new <your_workspace>
 terraform apply
 ```
 
+### Analytics Platform
+* Next the analytics platform needs to be deployed, enter the `securityanalytics-analyticsplatform` directory, and follow the build steps above. When deploying the infrastructure, elasticsearch takes around 10 minutes, so grab yourself a drink and wait...
+
 ### Nmap scanner
-* This task requires some Python libraries to be installed first:
-```
-pip3 install boto3
-pip3 install requests_aws4auth
-```
+
 * Enter the `securityanalytics-nmapscanner` directory. If you have both Python 2 and Python 3 installed you might need to edit the `python` references in elastic_resources/index.tf to be `python3`. 
 * You should now define the hosts you want to scan, by default `scanme.nmap.org` is scanned, you can override this by adding a `scan_hosts.auto.tfvar` file that contains:
 ```
@@ -162,29 +171,7 @@ scan_hosts = [
     "host1",
     "host2"]
 ```
-* Now build the infrastructure:
-```
-
-# get the latest taskexecution shared code from github
-git submodule init
-git submodule update --remote
-git submodule sync
-
-# setup pipenv
-# this works for Powershell, if you are using a different shell, set the environment variable accordingly:
-$Env:PIPENV_VENV_IN_PROJECT="true"
-pipenv install --dev
-
-cd infrastructure
-# you'll need to init whenever you add new providers in terraform
-# if prompted to migrate all workspaces to S3 then respond with 'yes'
-terraform init -backend-config "bucket=<your_bucket_name>-terraform-state"
-# select your workspace
-terraform workspace new <your_workspace>
-terraform get --update
-terraform apply
-```
-
+* Now build the infrastructure using the steps above
 * During development if you're also editing the `securityanalytics-taskexecution` `ecs_task` code, you can make the module point to your local version in `infrastructure.tf` by commenting out the `source` variable and uncommenting the local version
 
 ### Deployment complete
