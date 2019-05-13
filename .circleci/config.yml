@@ -30,11 +30,7 @@ jobs:
       - run:
           name: terraform
           command: |
-            echo 'export BUCKET=\"bucket=$APP_NAME-terraform-state\"' >> $BASH_ENV
-            source $BASH_ENV
-            echo $BUCKET
-
-            terraform init -backend-config $BUCKET
+            terraform init -backend-config "bucket=${APP_NAME}-terraform-state"
             # N.B. Don't need a per branch workspace, because we only ever deploy this to dev env
             # If in the future we add integration tests (probably should), we should do integration tests in a per
             # branch workspace like the other projects do.
