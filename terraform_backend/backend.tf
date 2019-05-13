@@ -8,6 +8,7 @@ variable "aws_region" {
 
 variable "backend_bucket" {}
 
+# Set this variable with your app.auto.tfvars file or enter it manually when prompted
 variable "app_name" {}
 
 provider "aws" {
@@ -20,7 +21,7 @@ provider "aws" {
 #############################################
 
 resource "aws_s3_bucket" "bucket" {
-  bucket = "${var.backend_bucket}-terraform-state"
+  bucket = "${var.app_name}-terraform-state"
 
   tags = {
     app_name = "${var.app_name}"
