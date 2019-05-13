@@ -16,8 +16,7 @@ jobs:
     executor: terraform
     steps:
       - run:
-          echo 'export BUCKET=\"bucket=$APP_NAME-terraform-state\"' >> $BASH_ENV
-          echo $BUCKET
+      
       - restore_cache:
           keys:
             - git-v3-{{ .Branch }}-
@@ -34,6 +33,10 @@ jobs:
       - run:
           name: terraform
           command: |
+            echo 'export BUCKET=\"bucket=$APP_NAME-terraform-state\"' >> $BASH_ENV
+            source $BASH_ENV
+            echo $BUCKET
+
             terraform init -backend-config $BUCKET
             # N.B. Don't need a per branch workspace, because we only ever deploy this to dev env
             # If in the future we add integration tests (probably should), we should do integration tests in a per
