@@ -15,8 +15,6 @@ jobs:
   setup:
     executor: terraform
     steps:
-      - run:
-      
       - restore_cache:
           keys:
             - git-v3-{{ .Branch }}-
@@ -29,7 +27,6 @@ jobs:
           keys:
             - tf-v3-{{ .Branch }}-
             - tf-v3-
-
       - run:
           name: terraform
           command: |
