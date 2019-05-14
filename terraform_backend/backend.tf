@@ -6,11 +6,8 @@ variable "aws_region" {
   default = "eu-west-2" # london
 }
 
-variable "s3_app_name" {}
-
-variable "app_name" {
-  default = "sec-an"
-}
+# Set this variable with your app.auto.tfvars file or enter it manually when prompted
+variable "app_name" {}
 
 provider "aws" {
   region  = "${var.aws_region}"
@@ -22,7 +19,7 @@ provider "aws" {
 #############################################
 
 resource "aws_s3_bucket" "bucket" {
-  bucket = "${var.s3_app_name}-terraform-state"
+  bucket = "${var.app_name}-terraform-state"
 
   tags = {
     app_name = "${var.app_name}"
