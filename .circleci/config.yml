@@ -67,7 +67,7 @@ jobs:
       - attach_workspace:
           at: .
       - run:
-          name: terraform apply -var app_name=$APP_NAME
+          name: terraform apply
           command: terraform apply plan.file
 
 workflows:

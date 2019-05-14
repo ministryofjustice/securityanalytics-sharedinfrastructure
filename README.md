@@ -118,6 +118,10 @@ terraform apply
 * Now enter the `securityanalytics-sharedcode` directory
 * Use terraform to initalise the infrastructure for this project:
 ```
+# setup pipenv (make sure PIPENV_VENV_IN_PROJECT is set to true first)
+pipenv install --dev
+pipenv shell
+
 cd infrastructure
 
 # you'll need to init whenever you add new providers in terraform

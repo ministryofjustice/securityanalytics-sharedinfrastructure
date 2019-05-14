@@ -6,8 +6,6 @@ variable "aws_region" {
   default = "eu-west-2" # london
 }
 
-variable "backend_bucket" {}
-
 # Set this variable with your app.auto.tfvars file or enter it manually when prompted
 variable "app_name" {}
 
