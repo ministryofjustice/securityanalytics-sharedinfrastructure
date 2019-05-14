@@ -51,20 +51,27 @@ You need to install the following:
 
 ## Terraform workspaces and unique names
 
+22 character
+
 It is advised that you use a separate [terraform workspace](https://www.terraform.io/docs/enterprise/workspaces/index.html) across each part of the project, if you are collaborating with others on the same AWS account.
 
-The workspace name is used in a variety of places as identifiers - to cater for limits of the AWS components that are used, you should use a name that is **16 characters or less**.
+The workspace name should be unique to you, within the group of users you are collaborating with on this project.  
+
+
+is used in a variety of places as identifiers - to cater for limits of the AWS components that are used, you should use a name that is **16 characters or less**.
 
 You will need to do set the same workspace for each part of the project. If you haven't set up a workspace you can do this with `terraform workspace new <workspace_name>` and select with `terraform workspace select <workspace_name>`.  If you are unsure if you have set up a workspace you can check this with `terraform workspace list`.
 
 The Cognito User Pool Domain, and S3 bucket names, are required to be globally unique, the name is formed of the workspace and `-sec-an-users', if you experience a clash then you will have to choose a different workspace. With this in mind, choose a workspace name that has a high chance of being unique.
 
-S3 requires bucket names to be globally unique, so when setting up your backend infrastructure, you will be prompted for a name - we use 'sec-an', however this has access permissions, so you will have to use your own unique name here to create your own private S3 bucket.
+When setting up the back-end infrastructure you will be prompted for an `app_name` - this is used to create a shared S3 bucket across which terraform uses for all the users collaborating on this project.  This needs to be specified by the person creating the back-end infrastructure, and then configured for each subsequent user building the platform.  The `app_name` is also used across the project for naming AWS components that are created.
 
-Terraform does not allow interpolations for backend setup, because of this limitation, whenever you call terraform init you will need to specify your S3 bucket in the command line, like this:
+In CircleCI you will also need to configure an `APP_NAME` environment variable for each project within the platform, which should match the `app_name` you used when configuring the back-end.
+
+Terraform does not allow interpolations for backend setup, because of this limitation, whenever you call terraform init you will need to specify your `app_name` to point to the shared S3 bucket in the command line, like this:
 
 ```
-terraform init -reconfigure -backend-config "bucket=<your_bucket_name>-terraform-state"
+terraform init -reconfigure -backend-config "bucket=<app_name>-terraform-state"
 ```
 
 If you don't do this, you'll hit an S3 bucket that you don't have permissions to and get a 403 error. If this fails you may need to add the `-reconfigure` to the init command for it to run.
@@ -101,7 +108,7 @@ cd infrastructure
 
 # you'll need to init whenever you add new providers in terraform
 # if prompted to migrate all workspaces to S3 then respond with 'yes'
-terraform init -backend-config "bucket=<your_bucket_name>-terraform-state"
+terraform init -backend-config "bucket=<app_name>-terraform-state"
 # select your workspace
 terraform workspace new <your_workspace>
 terraform apply
@@ -115,7 +122,7 @@ cd infrastructure
 
 # you'll need to init whenever you add new providers in terraform
 # if prompted to migrate all workspaces to S3 then respond with 'yes'
-terraform init -backend-config "bucket=<your_bucket_name>-terraform-state"
+terraform init -backend-config "bucket=<app_name>-terraform-state"
 # select your workspace
 terraform workspace new <your_workspace>
 terraform apply
@@ -128,7 +135,7 @@ cd infrastructure
 
 # you'll need to init whenever you add new providers in terraform
 # if prompted to migrate all workspaces to S3 then respond with 'yes'
-terraform init -backend-config "bucket=<your_bucket_name>-terraform-state"
+terraform init -backend-config "bucket=<app_name>-terraform-state"
 # select your workspace
 terraform workspace new <your_workspace>
 terraform apply
@@ -153,7 +160,7 @@ pipenv shell
 
 cd infrastructure
 # you'll need to init whenever you add new providers in terraform
-terraform init -backend-config "bucket=<your_bucket_name>-terraform-state"
+terraform init -backend-config "bucket=<app_name>-terraform-state"
 # select your workspace
 terraform workspace new <your_workspace>
 terraform apply
