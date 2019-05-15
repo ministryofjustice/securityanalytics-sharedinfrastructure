@@ -26,7 +26,7 @@ resource "aws_ssm_parameter" "identity_pool" {
 
 resource "aws_ssm_parameter" "cognito_user" {
   name        = "/${var.app_name}/${terraform.workspace}/users/sec-an/name"
-  description = "Sec-an user Id"
+  description = "${var.app_name} user Id"
   type        = "String"
   value       = "${aws_iam_role.sec_an_user.id}"
   overwrite   = "true"
@@ -39,7 +39,7 @@ resource "aws_ssm_parameter" "cognito_user" {
 
 resource "aws_ssm_parameter" "cognito_user_arn" {
   name        = "/${var.app_name}/${terraform.workspace}/users/sec-an/arn"
-  description = "Sec-an user Id"
+  description = "${var.app_name} user Id"
   type        = "String"
   value       = "${aws_iam_role.sec_an_user.arn}"
   overwrite   = "true"
