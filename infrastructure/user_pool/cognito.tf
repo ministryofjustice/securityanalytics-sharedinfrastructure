@@ -87,6 +87,15 @@ resource "aws_cognito_user_pool_domain" "user_pool" {
 resource "aws_cognito_identity_pool" "identity_pool" {
   identity_pool_name               = "${terraform.workspace} ${replace(var.app_name,"-"," ")} user ids"
   allow_unauthenticated_identities = false
+
+  # AWS Does way too much when setting up the elastic instance.
+  # It creates an application client for the user pool and hooks it up to the identity pool
+  # When terraform sees this change, it will go and remove the app client. This prevents that.
+  lifecycle {
+    ignore_changes = [
+      "cognito_identity_providers",
+    ]
+  }
 }
 
 resource "aws_cognito_identity_pool_roles_attachment" "authenticated_user" {
