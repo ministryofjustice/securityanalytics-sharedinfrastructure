@@ -85,14 +85,14 @@ resource "aws_cognito_user_pool_domain" "user_pool" {
 }
 
 resource "aws_cognito_identity_pool" "identity_pool" {
-  identity_pool_name               = "sec an user ids"
+  identity_pool_name               = "${terraform.workspace} ${replace(var.app_name,"-"," ")} user ids"
   allow_unauthenticated_identities = false
 }
 
-resource "aws_cognito_identity_pool_roles_attachment" "main" {
+resource "aws_cognito_identity_pool_roles_attachment" "authenticated_user" {
   identity_pool_id = "${aws_cognito_identity_pool.identity_pool.id}"
 
-  roles = {
-    "authenticated" = "${aws_iam_role.sec_an_user.arn}"
+  roles {
+    authenticated = "${aws_iam_role.sec_an_user.arn}"
   }
 }
