@@ -100,16 +100,16 @@ terraform apply
 
 #### Per-user Infrastructure
 * Next build the infrastructure for your user
-* There is a  `build.sh <app_name> <workspace_name>` script in the `securityanalytics-sharedinfrastructure` directory - run this and it will set up the infrastructure for you. If you are using Windows and Git Bash and it doesn't start that up, see the note above in pre-requisites.
+* There is a  `setup.sh <app_name> <workspace_name>` script in the `securityanalytics-sharedinfrastructure` directory - run this and it will set up the infrastructure for you. If you are using Windows and Git Bash and it doesn't start that up, see the note above in pre-requisites.
 
 ### Shared Code
-* Now enter the `securityanalytics-sharedcode` directory and run  `build.sh <app_name> <workspace_name>`
+* Now enter the `securityanalytics-sharedcode` directory and run  `setup.sh <app_name> <workspace_name>`
 
 ### Task Execution
-* Now enter the `securityanalytics-taskexecution` directory to set up the ECS cluster for running scanning tasks on - run  `build.sh <app_name> <workspace_name>`
+* Now enter the `securityanalytics-taskexecution` directory to set up the ECS cluster for running scanning tasks on - run  `setup.sh <app_name> <workspace_name>`
 
 ### Analytics Platform
-* Next the analytics platform needs to be deployed, enter the `securityanalytics-analyticsplatform` directory and run `build.sh <app_name> <workspace_name>`. Elasticsearch takes around 10 minutes to deploy, so grab yourself a drink and wait...
+* Next the analytics platform needs to be deployed, enter the `securityanalytics-analyticsplatform` directory and run `setup.sh <app_name> <workspace_name>`. Elasticsearch takes around 10 minutes to deploy, so grab yourself a drink and wait...
 
 ### Nmap scanner
 
@@ -120,7 +120,7 @@ scan_hosts = [
     "host1",
     "host2"]
 ```
-* Once you've done these steps then run `build.sh <app_name> <workspace_name>` to deploy the infrastructure
+* Once you've done these steps then run `setup.sh <app_name> <workspace_name>` to deploy the infrastructure
 * During development if you're also editing the `securityanalytics-taskexecution` `ecs_task` code, you can make the module point to your local version in `infrastructure.tf` by commenting out the `source` variable and uncommenting the local version
 
 ### Deployment complete
