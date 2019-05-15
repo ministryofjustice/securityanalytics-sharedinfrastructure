@@ -55,11 +55,11 @@ You need to install the following:
 
 It is advised that you use a separate [terraform workspace](https://www.terraform.io/docs/enterprise/workspaces/index.html) across each part of the project, if you are collaborating with others on the same AWS account.
 
-The workspace name should be unique to you, within the group of users you are collaborating with on this project.  There is an AWS size limitation, where the total length of the workspace name and app name need to be **22 characters or less**.
+The workspace name should be unique to you, within the group of users you are collaborating with on this project.  There is an AWS size limitation in the Elasticsearch domain name of 28 characters (we add `d-` as a prefix and a `-es` suffix), where the total length of the workspace name and app name need to be **22 characters or less**.
 
 You will need to do set the same workspace for each part of the project. If you haven't set up a workspace you can do this with `terraform workspace new <workspace_name>` and select with `terraform workspace select <workspace_name>`.  If you are unsure if you have set up a workspace you can check this with `terraform workspace list`.
 
-The Cognito User Pool Domain, and S3 bucket names, are required to be globally unique, the name is formed of `<workspace_name>-<app_name>-users`, if you experience a clash then you will have to choose a different workspace. With this in mind, choose a workspace name that has a high chance of being unique.
+The Cognito User Pool Domain, and S3 bucket names, are required to be globally unique, the name is formed of `<workspace_name>-<app_name>-users`, if you experience a clash then you will have to choose a different workspace. With this in mind, choose a workspace name that has a high chance of being unique,. e.g. your username.
 
 When setting up the back-end infrastructure you will be prompted for an `app_name` - this is used to create a shared S3 bucket across which terraform uses for all the users collaborating on this project.  This needs to be specified by the person creating the back-end infrastructure, and then configured for each subsequent user building the platform.  The `app_name` is also used across the project for naming AWS components that are created. As mentioned above, the total length of this `app_name` together with the workspace name must be 22 characters or less.
 
