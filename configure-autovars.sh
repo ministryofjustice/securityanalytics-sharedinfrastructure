@@ -15,7 +15,7 @@ do
     echo $d
     echo "app_name = \"$1\"" > "$d/account.auto.tfvars"
     echo "" >> "$d/account.auto.tfvars"
-    echo "account_id = $2 >> "$d/account.auto.tfvars"
+    echo "account_id = $2" >> "$d/account.auto.tfvars"
     pwd
   fi
 done
