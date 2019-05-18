@@ -43,7 +43,6 @@ The platform is split into a number of github repositories, allowing elements to
 You need to install the following:
 
 * [Terraform](https://www.terraform.io/downloads.html) - the platform is currently built using Terraform v0.11.x
-* [npx](https://www.npmjs.com/package/npx) - optional but will ensure dependencies are installed if not already installed
 * [Python](www.python.org) - the platform needs at least Python 3.7.0
 * [Pipenv](https://pypi.org/project/pipenv/)
 * [Docker](https://docs.docker.com/install/)
@@ -80,7 +79,8 @@ account_id=<your_account_id>
 
 ## Build/deployment steps
 
-* Make sure you have your AWS credentials setup. Terraform will need this to setup the infrastructure in AWS.  In your `.aws/credentials` file set up credentials for profile `sec-an` using `aws configure --profile=sec-an` - these credentials are used across terraform when building the platform.  
+* Make sure you have your AWS credentials setup. Terraform will need this to setup the infrastructure in AWS. To cater for MFA accounts, your credentials should be specified in the `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` environment variables.
+
 ### Shared Infrastructure
 * Start in the `securityanalytics-sharedinfrastructure` directory.  
   
@@ -100,16 +100,16 @@ terraform apply
 
 #### Per-user Infrastructure
 * Next build the infrastructure for your user
-* There is a  `setup.sh <app_name> <workspace_name>` script in the `securityanalytics-sharedinfrastructure` directory - run this and it will set up the infrastructure for you. If you are using Windows and Git Bash and it doesn't start that up, see the note above in pre-requisites.
+* There is a  `./setup.sh <app_name> <workspace_name>` script in the `securityanalytics-sharedinfrastructure` directory - run this and it will set up the infrastructure for you. If you are using Windows and Git Bash and it doesn't start that up, see the note above in pre-requisites.
 
 ### Shared Code
-* Now enter the `securityanalytics-sharedcode` directory and run  `setup.sh <app_name> <workspace_name>`
+* Now enter the `securityanalytics-sharedcode` directory and run  `./setup.sh <app_name> <workspace_name>`
 
 ### Task Execution
-* Now enter the `securityanalytics-taskexecution` directory to set up the ECS cluster for running scanning tasks on - run  `setup.sh <app_name> <workspace_name>`
+* Now enter the `securityanalytics-taskexecution` directory to set up the ECS cluster for running scanning tasks on - run  `./setup.sh <app_name> <workspace_name>`
 
 ### Analytics Platform
-* Next the analytics platform needs to be deployed, enter the `securityanalytics-analyticsplatform` directory and run `setup.sh <app_name> <workspace_name>`. Elasticsearch takes around 10 minutes to deploy, so grab yourself a drink and wait...
+* Next the analytics platform needs to be deployed, enter the `securityanalytics-analyticsplatform` directory and run `./setup.sh <app_name> <workspace_name>`. Elasticsearch takes around 10 minutes to deploy, so grab yourself a drink and wait...
 
 ### Nmap scanner
 
@@ -120,7 +120,7 @@ scan_hosts = [
     "host1",
     "host2"]
 ```
-* Once you've done these steps then run `setup.sh <app_name> <workspace_name>` to deploy the infrastructure
+* Once you've done these steps then run `./setup.sh <app_name> <workspace_name>` to deploy the infrastructure
 * During development if you're also editing the `securityanalytics-taskexecution` `ecs_task` code, you can make the module point to your local version in `infrastructure.tf` by commenting out the `source` variable and uncommenting the local version
 
 ### Deployment complete

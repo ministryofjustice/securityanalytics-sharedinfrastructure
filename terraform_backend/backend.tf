@@ -11,7 +11,8 @@ variable "app_name" {}
 
 provider "aws" {
   region  = "${var.aws_region}"
-  profile = "${var.app_name}"
+  # profile set in env variables to support MFA
+  # profile = "${var.app_name}"
 }
 
 #############################################

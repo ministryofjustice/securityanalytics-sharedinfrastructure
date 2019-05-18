@@ -85,7 +85,7 @@ resource "aws_cognito_user_pool_domain" "user_pool" {
 }
 
 resource "aws_cognito_identity_pool" "identity_pool" {
-  identity_pool_name               = "${terraform.workspace} ${replace(var.app_name,"-"," ")} user ids"
+  identity_pool_name               = "${replace(terraform.workspace,"-"," ")} ${replace(var.app_name,"-"," ")} user ids"
   allow_unauthenticated_identities = false
 
   # AWS Does way too much when setting up the elastic instance.
