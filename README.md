@@ -79,7 +79,7 @@ account_id=<your_account_id>
 
 ## Build/deployment steps
 
-* Make sure you have your AWS credentials setup. Terraform will need this to setup the infrastructure in AWS. To cater for MFA accounts, your credentials should be specified in the `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` environment variables.
+* Make sure you have your AWS credentials setup. Terraform will need this to setup the infrastructure in AWS. To cater for MFA accounts, your credentials should be specified in the `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` and `AWS_SESSION_TOKEN` environment variables.
 
 ### Shared Infrastructure
 * Start in the `securityanalytics-sharedinfrastructure` directory.  
