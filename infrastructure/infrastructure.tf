@@ -39,8 +39,8 @@ variable "az_limit" {
 variable "account_id" {}
 
 provider "aws" {
+  # N.B. To support all authentication use cases, we expect the local environment variables to provide auth details.
   region              = "${var.aws_region}"
-  profile             = "${var.app_name}"
   allowed_account_ids = ["${var.account_id}"]
 }
 

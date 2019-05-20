@@ -10,8 +10,8 @@ variable "aws_region" {
 variable "app_name" {}
 
 provider "aws" {
-  region  = "${var.aws_region}"
-  profile = "${var.app_name}"
+  region = "${var.aws_region}"
+  # N.B. To support all authentication use cases, we expect the local environment variables to provide auth details.
 }
 
 #############################################
