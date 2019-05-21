@@ -92,7 +92,7 @@ jobs:
           command: |
             unset AWS_PROFILE
             export AWS_ACCESS_KEY_ID=$MOJ_ACCESS_KEY_ID
-            export AWS_SECRET_ACCESS_KEY_ID=$MOJ_SECRET_ACCESS_KEY_ID
+            export AWS_SECRET_ACCESS_KEY=$MOJ_SECRET_ACCESS_KEY
             set -x
             terraform init -backend-config "bucket=$MOJ_APP_NAME-terraform-state" -reconfigure
             terraform workspace new dev || terraform workspace select dev
