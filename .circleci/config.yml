@@ -121,4 +121,5 @@ workflows:
           requires: [ approve ]
           <<: *master-only
       - deploy-moj:
-          requires: [ setup ]
+          requires: [ approve ]
+          <<: *master-only
