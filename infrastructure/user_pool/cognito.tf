@@ -5,7 +5,7 @@ resource "aws_cognito_user_pool" "user_pool" {
     allow_admin_create_user_only = true
 
     invite_message_template = {
-      email_message = "You have been invited to use the security analytics apllication. Your user name is {username} and temporary password is {####}. You have 1 week in which to take up this invitation."
+      email_message = "You have been invited to use the security analytics application. Your user name is {username} and temporary password is {####}. You have 1 week in which to take up this invitation."
       email_subject = "You are invited to use the security analytics application"
       sms_message   = "Your user name is {username} and temporary password is {####}"
     }
