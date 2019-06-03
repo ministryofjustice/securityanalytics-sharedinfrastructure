@@ -78,6 +78,12 @@ Your AWS account id is needed for most of the terraform infrastructure creation,
 account_id=<your_account_id>
 ```
 
+### AWS default region and profiles
+
+The default region in the Terraform backend setup for each part of the platform is `eu-west-2` (London). You can override this by passing an additional parameter to terraform init: `-backend-config "region=<your_region>"`
+
+The AWS profile that is used is `sec-an` if you need to change this, then this is another additional parameter in terraform init: `-backend-config "profile=<aws_profile_name>"`
+
 ## Build/deployment steps
 
 * Make sure you have your AWS credentials setup. Terraform will need this to setup the infrastructure in AWS.  In your `.aws/credentials` file set up credentials for profile `sec-an` using `aws configure --profile=sec-an` - these credentials are used across terraform when building the platform.  
