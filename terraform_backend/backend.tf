@@ -7,10 +7,11 @@ variable "aws_region" {
 }
 
 # Set this variable with your app.auto.tfvars file or enter it manually when prompted
-variable "app_name" {}
+variable "app_name" {
+}
 
 provider "aws" {
-  region = "${var.aws_region}"
+  region = var.aws_region
   # N.B. To support all authentication use cases, we expect the local environment variables to provide auth details.
 }
 
@@ -22,7 +23,7 @@ resource "aws_s3_bucket" "bucket" {
   bucket = "${var.app_name}-terraform-state"
 
   tags = {
-    app_name = "${var.app_name}"
+    app_name = var.app_name
   }
 }
 
@@ -32,7 +33,7 @@ resource "aws_dynamodb_table" "db" {
   hash_key     = "LockID"
 
   tags = {
-    app_name = "${var.app_name}"
+    app_name = var.app_name
   }
 
   attribute {
@@ -45,7 +46,7 @@ resource "aws_iam_user" "circle_ci" {
   name = "${var.app_name}-circle-ci"
 
   tags = {
-    app_name = "${var.app_name}"
+    app_name = var.app_name
   }
 }
 
@@ -61,7 +62,7 @@ data "aws_iam_policy_document" "access_terraform" {
     ]
 
     resources = [
-      "${aws_s3_bucket.bucket.arn}",
+      aws_s3_bucket.bucket.arn,
       "${aws_s3_bucket.bucket.arn}/*",
     ]
   }
@@ -69,23 +70,24 @@ data "aws_iam_policy_document" "access_terraform" {
   statement {
     effect    = "Allow"
     actions   = ["dynamodb:*"]
-    resources = ["${aws_dynamodb_table.db.arn}"]
+    resources = [aws_dynamodb_table.db.arn]
   }
 
   statement {
     effect    = "Allow"
     actions   = ["iam:GetUser"]
-    resources = ["${aws_iam_user.circle_ci.arn}"]
+    resources = [aws_iam_user.circle_ci.arn]
   }
 }
 
 resource "aws_iam_policy" "terraform_access" {
   name   = "${var.app_name}-terraform-access"
-  policy = "${data.aws_iam_policy_document.access_terraform.json}"
+  policy = data.aws_iam_policy_document.access_terraform.json
 }
 
 resource "aws_iam_policy_attachment" "terraform_access" {
   name       = "${var.app_name}-terraform-access"
-  users      = ["${aws_iam_user.circle_ci.id}"]
-  policy_arn = "${aws_iam_policy.terraform_access.arn}"
+  users      = [aws_iam_user.circle_ci.id]
+  policy_arn = aws_iam_policy.terraform_access.arn
 }
+

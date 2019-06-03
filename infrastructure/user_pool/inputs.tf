@@ -1,7 +1,8 @@
 variable "app_name" {
-  type = "string"
+  type = string
 }
 
 variable "api_url" {
-  type = "string"
+  type = string
 }
+
