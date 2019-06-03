@@ -1,7 +1,8 @@
 variable "app_name" {
-  type = "string"
+  type = string
 }
 
 variable "user_pool_arn" {
-  type = "string"
+  type = string
 }
+

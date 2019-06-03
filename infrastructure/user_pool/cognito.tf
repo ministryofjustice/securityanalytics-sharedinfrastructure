@@ -4,7 +4,7 @@ resource "aws_cognito_user_pool" "user_pool" {
   admin_create_user_config {
     allow_admin_create_user_only = true
 
-    invite_message_template = {
+    invite_message_template {
       email_message = "You have been invited to use the security analytics application. Your user name is {username} and temporary password is {####}. You have 1 week in which to take up this invitation."
       email_subject = "You are invited to use the security analytics application"
       sms_message   = "Your user name is {username} and temporary password is {####}"
@@ -73,35 +73,34 @@ resource "aws_cognito_user_pool" "user_pool" {
     email_subject        = "Security analytics wants to confirm your identity"
   }
 
-  tags {
-    app_name  = "${var.app_name}"
-    workspace = "${terraform.workspace}"
+  tags = {
+    app_name  = var.app_name
+    workspace = terraform.workspace
   }
 }
 
 resource "aws_cognito_user_pool_domain" "user_pool" {
   domain       = "${terraform.workspace}-${var.app_name}-users"
-  user_pool_id = "${aws_cognito_user_pool.user_pool.id}"
+  user_pool_id = aws_cognito_user_pool.user_pool.id
 }
 
 resource "aws_cognito_identity_pool" "identity_pool" {
-  identity_pool_name               = "${replace(terraform.workspace,"-"," ")} ${replace(var.app_name,"-"," ")} user ids"
+  identity_pool_name               = "${replace(terraform.workspace, "-", " ")} ${replace(var.app_name, "-", " ")} user ids"
   allow_unauthenticated_identities = false
 
   # AWS Does way too much when setting up the elastic instance.
   # It creates an application client for the user pool and hooks it up to the identity pool
   # When terraform sees this change, it will go and remove the app client. This prevents that.
   lifecycle {
-    ignore_changes = [
-      "cognito_identity_providers",
-    ]
+    ignore_changes = [cognito_identity_providers]
   }
 }
 
 resource "aws_cognito_identity_pool_roles_attachment" "authenticated_user" {
-  identity_pool_id = "${aws_cognito_identity_pool.identity_pool.id}"
+  identity_pool_id = aws_cognito_identity_pool.identity_pool.id
 
-  roles {
-    authenticated = "${aws_iam_role.sec_an_user.arn}"
+  roles = {
+    authenticated = aws_iam_role.sec_an_user.arn
   }
 }
+
