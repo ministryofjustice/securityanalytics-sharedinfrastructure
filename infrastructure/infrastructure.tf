@@ -43,6 +43,7 @@ provider "aws" {
   # N.B. To support all authentication use cases, we expect the local environment variables to provide auth details.
   region              = var.aws_region
   allowed_account_ids = [var.account_id]
+  version = "~> 2.9"
 }
 
 #############################################
