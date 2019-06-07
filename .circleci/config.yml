@@ -6,36 +6,51 @@ master-only: &master-only
       only: master
 
 executors:
-  terraform:
+  builder:
     docker:
       - image: duckpodger/python3-node-aws-terraform
-    working_directory: ~/project/infrastructure
 
 jobs:
   setup:
-    executor: terraform
+    executor: builder
     steps:
       - restore_cache:
           keys:
             - git-v3-{{ .Branch }}-
             - git-v3-
 
-      - checkout:
-          path: ~/project
+      - checkout
+
+      - run:
+          name: update git submodule
+          command: |
+            git submodule init
+            git submodule update --remote
+            git submodule sync
 
       - restore_cache:
           keys:
-            - tf-v3-{{ .Branch }}-
-            - tf-v3-
+            - other-v1-{{ .Branch }}-
+            - other-v1-
+
+      - run:
+          name: install virtual env
+          command: |
+            export PIPENV_VENV_IN_PROJECT=true
+            pipenv install --dev --deploy
+            pipenv clean
+            if [ ! -d "test-reports" ]; then
+              mkdir test-reports
+            fi
+
       - run:
           name: terraform
           command: |
-            set -x
-            terraform init -backend-config "bucket=$APP_NAME-terraform-state" -reconfigure
-            # N.B. Don't need a per branch workspace, because we only ever deploy this to dev env
-            # If in the future we add integration tests (probably should), we should do integration tests in a per
-            # branch workspace like the other projects do.
-            terraform workspace new dev || terraform workspace select dev
+            . .circleci/env.sh
+            cd infrastructure
+            terraform init -backend-config "bucket=$APP_NAME-terraform-state"
+            terraform get --update
+            terraform workspace new $SSM_SOURCE_STAGE || terraform workspace select $SSM_SOURCE_STAGE
             echo checking formatting
             terraform fmt -check=true
             echo making the plan
@@ -47,10 +62,16 @@ jobs:
             - "*"
 
       - store_artifacts:
-          path: terraform.plan
+          path: .generated
 
       - store_artifacts:
-          path: plan.file
+          path: infrastructure/plan.file
+
+      - store_artifacts:
+          path: infrastructure/terraform.plan
+
+      - store_artifacts:
+          path: .generated/*
 
       - save_cache:
           key: git-v3-{{ .Branch }}-{{ .Revision }}
@@ -58,34 +79,56 @@ jobs:
             - ".git"
 
       - save_cache:
-          key: tf-v3-{{ .Branch }}-{{ .Revision }}
+          key: other-v1-{{ .Branch }}-{{ .Revision }}
           paths:
             - ".terraform"
+            - ".venv"
+            - ".generated"
 
   deploy:
-    executor: terraform
+    executor: builder
     steps:
       - attach_workspace:
           at: .
+      # TODO change this when we move on to having multiple environments
       - run:
-          name: terraform apply
-          command: terraform apply plan.file
+          name: deploy
+          command: |
+            . .circleci/env.sh
+            cd infrastructure
+            terraform workspace new dev || terraform workspace select dev
+            terraform apply plan.file
 
   deploy-moj:
-    executor: terraform
+    executor: builder
     steps:
       - restore_cache:
           keys:
             - git-v3-{{ .Branch }}-
             - git-v3-
 
-      - checkout:
-          path: ~/project
+      - checkout
 
       - restore_cache:
           keys:
             - tf-moj-v1-{{ .Branch }}-
             - tf-moj-v1-
+
+      - run:
+          name: update git submodule
+          command: |
+            git submodule init
+            git submodule update --remote
+            git submodule sync
+
+      - run:
+          name: install virtual env
+          command: |
+            export PIPENV_VENV_IN_PROJECT=true
+            pipenv install --dev --deploy
+            if [ ! -d "test-reports" ]; then
+              mkdir test-reports
+            fi
 
       - run:
           name: terraform apply
@@ -94,6 +137,8 @@ jobs:
             export AWS_ACCESS_KEY_ID=$MOJ_ACCESS_KEY_ID
             export AWS_SECRET_ACCESS_KEY=$MOJ_SECRET_ACCESS_KEY
             set -x
+            . .circleci/env.sh
+            cd infrastructure
             terraform init -backend-config "bucket=$MOJ_APP_NAME-terraform-state" -reconfigure
             terraform workspace new dev || terraform workspace select dev
             terraform apply -auto-approve -var account_id=$MOJ_ACCOUNT_ID -var app_name=$MOJ_APP_NAME
@@ -107,6 +152,8 @@ jobs:
           key: tf-moj-v1-{{ .Branch }}-{{ .Revision }}
           paths:
             - ".terraform"
+            - ".venv"
+            - ".generated"
 
 workflows:
   version: 2

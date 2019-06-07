@@ -39,6 +39,12 @@ variable "az_limit" {
 variable "account_id" {
 }
 
+variable "use_xray" {
+  type = string
+  description = "Whether to instrument lambdas"
+  default = false
+}
+
 provider "aws" {
   # N.B. To support all authentication use cases, we expect the local environment variables to provide auth details.
   region              = var.aws_region
@@ -101,5 +107,6 @@ module "monitoring" {
   # and remove this TODO comment.
   source   = "./monitoring"
   app_name = var.app_name
+  use_xray = var.use_xray
 }
 

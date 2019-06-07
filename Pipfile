@@ -1,0 +1,10 @@
+[dev-packages]
+pytest = "*"
+pytest-asyncio = "*"
+aws-xray-sdk = "*"
+
+[packages]
+aioboto3 = "*"
+
+[requires]
+python_version = "3.7"
