@@ -1,28 +1,4 @@
-# Distribution / packaging
-.Python
-env/
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-*.egg-info/
-.installed.cfg
-*.egg
-__pycache__
-.venv
-
-
-# other . dirs
-.cache
-.pytest_cache
-.generated
+#terraform dir
 .terraform
 
 # .tfstate files
@@ -32,5 +8,3 @@ __pycache__
 # .tfvars files
 *auto.tfvars
 terraform.tfvars
-
-test-reports
