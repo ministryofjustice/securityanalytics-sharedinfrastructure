@@ -107,6 +107,5 @@ module "monitoring" {
   # and remove this TODO comment.
   source   = "./monitoring"
   app_name = var.app_name
-  use_xray = var.use_xray
 }
 

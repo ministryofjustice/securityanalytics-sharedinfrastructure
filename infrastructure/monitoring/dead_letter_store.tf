@@ -6,8 +6,3 @@ resource "aws_s3_bucket" "dead_letter_store" {
     workspace = terraform.workspace
   }
 }
-
-module "dead_letter_reporter" {
-  source = "dead_letter_reporter"
-
-}
