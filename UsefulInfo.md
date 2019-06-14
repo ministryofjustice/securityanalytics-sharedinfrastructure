@@ -49,3 +49,10 @@ Some scanning tasks are dependent on other resources, for example the SSL scanne
 ### ipenv clean
 
 ### git submodule sync
+
+
+
+### errors
+
+if you see an error in base_events.py line 296, there's a chance that you've included asyncio somewhere - in this case do a 'pipenv clean' across your projects and rebuild.
+

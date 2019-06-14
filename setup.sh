@@ -6,7 +6,7 @@ if [ $# -ne 2 ]; then
     exit
 fi
 
-echo -e "\n** Running setup.sh in $PWD (app_name=$1, workspace=$2) **\n"
+echo "** Running setup.sh in $PWD (app_name=$1, workspace=$2) **"
 
 cd infrastructure
 if [[ "$OSTYPE" == "darwin"* ]]; then
