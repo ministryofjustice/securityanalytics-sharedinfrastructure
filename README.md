@@ -45,7 +45,7 @@ You need to install the following:
 * [Terraform](https://www.terraform.io/downloads.html) - the platform is currently built using Terraform v0.11.x
 * [Python](www.python.org) - the platform needs at least Python 3.7.0
 * [Pipenv](https://pypi.org/project/pipenv/)
-* [Docker](https://docs.docker.com/install/)
+* [Docker](https://docs.docker.com/install/) - **you'll need to run Docker first so that the Docker CLI command works**
 * Amazon Web Services account and [AWS command line tools](https://aws.amazon.com/cli/)
 * [Git Bash](https://gitforwindows.org/) - you'll need this installed to run various shell scripts in the project if you are running on Windows. Also ensure that `.sh` is set to be associated with Git Bash or script execution will fail.
 
