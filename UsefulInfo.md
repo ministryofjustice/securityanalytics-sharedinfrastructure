@@ -46,7 +46,7 @@ Some scanning tasks are dependent on other resources, for example the SSL scanne
 
 ### terraform get --update
 
-### ipenv clean
+### pipenv clean
 
 ### git submodule sync
 

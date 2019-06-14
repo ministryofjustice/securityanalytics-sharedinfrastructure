@@ -8,6 +8,7 @@ fi
 
 echo "** Running setup.sh in $PWD (app_name=$1, workspace=$2) **"
 
+
 cd infrastructure
 if [[ "$OSTYPE" == "darwin"* ]]; then
     # MacOS sets the maximum file limit to 256 - there are some parts of the build script that run in parallel
