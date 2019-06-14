@@ -17,16 +17,16 @@ jobs:
     steps:
       - restore_cache:
           keys:
-            - git-v3-{{ .Branch }}-
-            - git-v3-
+            - git-v4-{{ .Branch }}-
+            - git-v4-
 
       - checkout:
           path: ~/project
 
       - restore_cache:
           keys:
-            - tf-v3-{{ .Branch }}-
-            - tf-v3-
+            - tf-v4-{{ .Branch }}-
+            - tf-v4-
       - run:
           name: terraform
           command: |
@@ -53,12 +53,12 @@ jobs:
           path: plan.file
 
       - save_cache:
-          key: git-v3-{{ .Branch }}-{{ .Revision }}
+          key: git-v4-{{ .Branch }}-{{ .Revision }}
           paths:
             - ".git"
 
       - save_cache:
-          key: tf-v3-{{ .Branch }}-{{ .Revision }}
+          key: tf-v4-{{ .Branch }}-{{ .Revision }}
           paths:
             - ".terraform"
 
@@ -76,16 +76,16 @@ jobs:
     steps:
       - restore_cache:
           keys:
-            - git-v3-{{ .Branch }}-
-            - git-v3-
+            - git-v4-{{ .Branch }}-
+            - git-v4-
 
       - checkout:
           path: ~/project
 
       - restore_cache:
           keys:
-            - tf-moj-v1-{{ .Branch }}-
-            - tf-moj-v1-
+            - tf-moj-v2-{{ .Branch }}-
+            - tf-moj-v2-
 
       - run:
           name: terraform apply
@@ -99,12 +99,12 @@ jobs:
             terraform apply -auto-approve -var account_id=$MOJ_ACCOUNT_ID -var app_name=$MOJ_APP_NAME
 
       - save_cache:
-          key: git-v3-{{ .Branch }}-{{ .Revision }}
+          key: git-v4-{{ .Branch }}-{{ .Revision }}
           paths:
             - ".git"
 
       - save_cache:
-          key: tf-moj-v1-{{ .Branch }}-{{ .Revision }}
+          key: tf-moj-v2-{{ .Branch }}-{{ .Revision }}
           paths:
             - ".terraform"
 
