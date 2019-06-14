@@ -48,44 +48,44 @@
  
  These are the main modules in security analytics at present, the ordering they are mentioned here when used as a deployment order will ensure all projects are deployed after the ones they depend on.
  
- 1. Shared Code
-    - Infrastructure
-      1. Shared utils layer - python decorators and other code that make writing security analytics lambdas easier
-    - Modules
-      1. Dead letter recorder - a module that sets up a dead letter queue and a lambda that forwards dead letters to an s3 bucket to be examined later
-      2. SQS SNS Glue - a module that uses a lambda to wire an sqs queue to an sns queue, used in the scan planner with the delay queue.
+ 1. _Shared Code_
+    - *Infrastructure*
+      1. *Shared utils layer* - python decorators and other code that make writing security analytics lambdas easier
+    - *Modules*
+      1. *Dead letter recorder* - a module that sets up a dead letter queue and a lambda that forwards dead letters to an s3 bucket to be examined later
+      2. *SQS SNS Glue* - a module that uses a lambda to wire an sqs queue to an sns queue, used in the scan planner with the delay queue.
       
- 2. Shared Infrastructure
-    - Infrastructure
-      1. API Gateway - This API gateway will be shared by all the projects in security analytics, each project adding resources to the API. Note that the early stages of the project do not have a public API, Kibana being the only user interface.
-      2. Monitoring infra structure - At present this provides a role for SNS to use when logging failures, as well as the S3 bucket used to store dead letters.
-      3. Cognito User Pool - This is used to provide authentication and manage users for the whole security analytics platform.
-      4. VPC - Best practices and good intentions would lead to us running a public and private VPC for the security analytics platform. E.g. the ECS cluster should be in our private VPC and it would access the internet via a NAT gateway. This module is flexible about how many availability zones it makes use of. In reality additional permissions, infrastructure and configuration are needed to make this work e.g. giving permissions to create elastic IP addresses. Some things e.g. Lambdas can be run in the private VPC, but benefit little from doing so. In reality we currently don't create the private vpc and our ECS cluster is in the public vpc.
+ 2. _Shared Infrastructure_
+    - *Infrastructure*
+      1. *API Gateway* - This API gateway will be shared by all the projects in security analytics, each project adding resources to the API. Note that the early stages of the project do not have a public API, Kibana being the only user interface.
+      2. *Monitoring infrastructure* - At present this provides a role for SNS to use when logging failures, as well as the S3 bucket used to store dead letters.
+      3. *Cognito User Pool* - This is used to provide authentication and manage users for the whole security analytics platform.
+      4. *VPC* - Best practices and good intentions would lead to us running a public and private VPC for the security analytics platform. E.g. the ECS cluster should be in our private VPC and it would access the internet via a NAT gateway. This module is flexible about how many availability zones it makes use of. In reality additional permissions, infrastructure and configuration are needed to make this work e.g. giving permissions to create elastic IP addresses. Some things e.g. Lambdas can be run in the private VPC, but benefit little from doing so. In reality we currently don't create the private vpc and our ECS cluster is in the public vpc.
       
- 3. Analytics Platform
-    - Infrastructure
-      1. Elastic search - Provisions the elastic search instance, kibana and integrates this with the cognito user pool. It also places an SQS queue in front of the elastic instance, to fit with the service model described above and to decouple e.g. scans from the elastic API allowing us to switch in other types of datastore later. Currently only uses AWS elastic search, but in future may be changed to create and manage the cluster more explicitly.
-      2. Dead letter reporter - This lambda trigger will be triggered whenever a dead letter is recorded into the bucket which holds them and report the dead letter to the elastic instance so that the breakdown of dead letters per resource and time and be recorded within elastic.
-    - Modules
-      1. Dynamo elastic sync - a module which can be used to replicate a dynamo db table into elastic e.g. used to visualise the DNS resolution data in Kibana.
-      2. Elastic Index - a module that can be used to provision an elastic index using terraform. N.B. This is currently hacked together with some python scripts and null_resources with provisioners. This just about works, but is error prone and limited. In future a real terraform plugin for elastic should be developed.
-      3. Kibana Saved Object - A module like the elastic index one, but which enables the provision of e.g. visualisations, searches and dashboards.
+ 3. _Analytics Platform_
+    - *Infrastructure*
+      1. *Elastic search* - Provisions the elastic search instance, kibana and integrates this with the cognito user pool. It also places an SQS queue in front of the elastic instance, to fit with the service model described above and to decouple e.g. scans from the elastic API allowing us to switch in other types of datastore later. Currently only uses AWS elastic search, but in future may be changed to create and manage the cluster more explicitly.
+      2. *Dead letter reporter* - This lambda trigger will be triggered whenever a dead letter is recorded into the bucket which holds them and report the dead letter to the elastic instance so that the breakdown of dead letters per resource and time and be recorded within elastic.
+    - *Modules*
+      1. *Dynamo elastic sync* - a module which can be used to replicate a dynamo db table into elastic e.g. used to visualise the DNS resolution data in Kibana.
+      2. *Elastic Index* - a module that can be used to provision an elastic index using terraform. N.B. This is currently hacked together with some python scripts and null_resources with provisioners. This just about works, but is error prone and limited. In future a real terraform plugin for elastic should be developed.
+      3. *Kibana Saved Object* - A module like the elastic index one, but which enables the provision of e.g. visualisations, searches and dashboards.
       
- 4. Task Execution
-    - Infrastructure
-      1.  ECS Cluster - Currently a Fargate based cluster not in the private VPC. Used to run scans that take too long, require root perms or more resources than a lambda can.
-      2. DNS Ingestor & Scan Scheduler - Using dynamo db to track host<->address mappings, route 53 hosted domain records are ingested in order to determine a scanning plan. Later another lambda, scheduled using cloud watch cron schedules will add scan requests to a delay queue so that the requests will be output at the correct scheduled time. The scan planning is done by adding each scan to one of a covering of 15 minute buckets across the day, and then using a uniform distribution to locate the planned scan within the bucket. Using the dynamo to elastic sync and some kibana saved resources this will add some visualisations to the platform.
-    - Modules
-      1. Task - the task module is the module used by all implementations of a scan that is implemented using a lambda. A task comprises two lambdas one which does the scan and stores the raw results in s3 and another that parses those results to construct the output messages that are often e.g. piped into elastic. Note the data lake design keeps the raw inputs so that later when the  
-      2. ECS Task - An extension of the Task module where the scan lambda is used to invoke an ECS task to actually run the scan. Useful for scans that take more than 15mins, ones which need root to construct custom packets e.g. nmap.
+ 4. _Task Execution_
+    - *Infrastructure*
+      1.  *ECS Cluster* - Currently a Fargate based cluster not in the private VPC. Used to run scans that take too long, require root perms or more resources than a lambda can.
+      2. *DNS Ingestor & Scan Scheduler* - Using dynamo db to track host<->address mappings, route 53 hosted domain records are ingested in order to determine a scanning plan. Later another lambda, scheduled using cloud watch cron schedules will add scan requests to a delay queue so that the requests will be output at the correct scheduled time. The scan planning is done by adding each scan to one of a covering of 15 minute buckets across the day, and then using a uniform distribution to locate the planned scan within the bucket. Using the dynamo to elastic sync and some kibana saved resources this will add some visualisations to the platform.
+    - *Modules*
+      1. *Task* - the task module is the module used by all implementations of a scan that is implemented using a lambda. A task comprises two lambdas one which does the scan and stores the raw results in s3 and another that parses those results to construct the output messages that are often e.g. piped into elastic. Note the data lake design keeps the raw inputs so that later when the  
+      2. *ECS Task* - An extension of the Task module where the scan lambda is used to invoke an ECS task to actually run the scan. Useful for scans that take more than 15mins, ones which need root to construct custom packets e.g. nmap.
       
- 5. NMAP scanner
-   - Infrastructure
-     1. Nmap scanner - The nmap scanner is an ECS task which does a basic port scan, tries to identify e.g. application fingerprints, and does some basic SSL and CVE checks. The nmap scanner will be subscribed to the output of the scan scheduler so that it will be a primary scan, done once for each IP address resolved. The nmap scan also subscribes the elastic search input queue to its output so that the details of the scan are stored in elastic, and so that secondary scans can be triggered e.g. when nmap discovers a new http port open on a host. As well as actual scanner and results parser, this project adds visualisations and dashboards to kibana.
+ 5. _NMAP scanner_
+   - *Infrastructure*
+     1. *Nmap scanner* - The nmap scanner is an ECS task which does a basic port scan, tries to identify e.g. application fingerprints, and does some basic SSL and CVE checks. The nmap scanner will be subscribed to the output of the scan scheduler so that it will be a primary scan, done once for each IP address resolved. The nmap scan also subscribes the elastic search input queue to its output so that the details of the scan are stored in elastic, and so that secondary scans can be triggered e.g. when nmap discovers a new http port open on a host. As well as actual scanner and results parser, this project adds visualisations and dashboards to kibana.
      
- 6. SSL scanner
-    - Infrastructure
-      1. SSL Scanner - this scanner is a secondary scan, triggered when the nmap scan detects ports which should be using SSL. It is a lambda based, as opposed to ECS based scanner.
+ 6. _SSL scanner_
+    - *Infrastructure*
+      1. *SSL Scanner* - this scanner is a secondary scan, triggered when the nmap scan detects ports which should be using SSL. It is a lambda based, as opposed to ECS based scanner.
  
  # Notes
  
