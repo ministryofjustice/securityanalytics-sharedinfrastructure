@@ -51,13 +51,6 @@ provider "aws" {
 #############################################
 
 module "vpc" {
-  # TF-UPGRADE-TODO: In Terraform v0.11 and earlier, it was possible to
-  # reference a relative module source without a preceding ./, but it is no
-  # longer supported in Terraform v0.12.
-  #
-  # If the below module source is indeed a relative local path, add ./ to the
-  # start of the source string. If that is not the case, then leave it as-is
-  # and remove this TODO comment.
   source         = "./vpc"
   app_name       = var.app_name
   create_private = var.use_private_subnets
@@ -66,39 +59,18 @@ module "vpc" {
 }
 
 module "user_pool" {
-  # TF-UPGRADE-TODO: In Terraform v0.11 and earlier, it was possible to
-  # reference a relative module source without a preceding ./, but it is no
-  # longer supported in Terraform v0.12.
-  #
-  # If the below module source is indeed a relative local path, add ./ to the
-  # start of the source string. If that is not the case, then leave it as-is
-  # and remove this TODO comment.
   source   = "./user_pool"
   app_name = var.app_name
   api_url  = module.api_gateway.api_url
 }
 
 module "api_gateway" {
-  # TF-UPGRADE-TODO: In Terraform v0.11 and earlier, it was possible to
-  # reference a relative module source without a preceding ./, but it is no
-  # longer supported in Terraform v0.12.
-  #
-  # If the below module source is indeed a relative local path, add ./ to the
-  # start of the source string. If that is not the case, then leave it as-is
-  # and remove this TODO comment.
   source        = "./api_gateway"
   app_name      = var.app_name
   user_pool_arn = module.user_pool.user_pool_arn
 }
 
 module "monitoring" {
-  # TF-UPGRADE-TODO: In Terraform v0.11 and earlier, it was possible to
-  # reference a relative module source without a preceding ./, but it is no
-  # longer supported in Terraform v0.12.
-  #
-  # If the below module source is indeed a relative local path, add ./ to the
-  # start of the source string. If that is not the case, then leave it as-is
-  # and remove this TODO comment.
   source   = "./monitoring"
   app_name = var.app_name
 }
