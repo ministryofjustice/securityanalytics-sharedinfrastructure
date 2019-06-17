@@ -44,7 +44,7 @@ def get_log(client, group):
 
 session = boto3.session.Session(profile_name='sec-an')
 client = session.client('logs')
-prefix = 'progers-sec-an'
+prefix = 'mamos-sec-an'
 stream_list = [f'/aws/lambda/{prefix}-analytics-ingestor',
                f'/aws/lambda/{prefix}-delay-notify-glue',
                f'/aws/lambda/{prefix}-ingest-dns',
@@ -62,7 +62,13 @@ stream_list = [f'/aws/lambda/{prefix}-analytics-ingestor',
 #
 # silence streams (useful if something is broken in the chain):
 silence = [f'/aws/lambda/{prefix}-delay-notify-glue',
-           f'/aws/lambda/{prefix}-analytics-ingestor']
+           f'/aws/lambda/{prefix}-analytics-ingestor',
+           f'/aws/lambda/{prefix}-ssl-results-parser',
+           f'/aws/lambda/{prefix}-ssl-sns-listener',
+           f'/aws/lambda/{prefix}-ssl-task-q-consumer',
+           f'/aws/lambda/{prefix}-simple-lambda-sns-listener',
+           f'/aws/lambda/{prefix}-simple-lambda-task-q-consumer',
+           f'/aws/lambda/{prefix}-simple-lambda-results-parser']
 for s in silence:
     stream_list.remove(s)
 dt_obj = datetime.datetime.now()
