@@ -37,7 +37,7 @@ jobs:
             # branch workspace like the other projects do.
             terraform workspace new dev || terraform workspace select dev
             echo checking formatting
-            terraform fmt -check=true
+            terraform fmt -recursive -check=true
             echo making the plan
             terraform plan -var account_id=$ACCOUNT_ID -var app_name=$APP_NAME -no-color -out=plan.file > terraform.plan
 
@@ -95,6 +95,7 @@ jobs:
             export AWS_SECRET_ACCESS_KEY=$MOJ_SECRET_ACCESS_KEY
             set -x
             terraform init -backend-config "bucket=$MOJ_APP_NAME-terraform-state" -reconfigure
+            terraform get --update
             terraform workspace new dev || terraform workspace select dev
             terraform apply -auto-approve -var account_id=$MOJ_ACCOUNT_ID -var app_name=$MOJ_APP_NAME
 
