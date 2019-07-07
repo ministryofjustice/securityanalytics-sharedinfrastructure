@@ -6,18 +6,20 @@ then
     sleep 30
     exit
 fi
-cd ../securityanalytics-sharedinfrastructure
-./setup.sh $1 $2
-wait
+
 cd ../securityanalytics-sharedcode
 ./setup.sh $1 $2
 wait
-cd ../securityanalytics-taskexecution
+cd ../securityanalytics-sharedinfrastructure
 ./setup.sh $1 $2
 wait
 cd ../securityanalytics-analyticsplatform
 ./setup.sh $1 $2
 wait
+cd ../securityanalytics-taskexecution
+./setup.sh $1 $2
+wait
+
 cd ../securityanalytics-nmapscanner
 ./setup.sh $1 $2
 wait
