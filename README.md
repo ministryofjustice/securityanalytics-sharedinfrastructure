@@ -20,9 +20,11 @@ The project uses terraform for managing updates and roll outs, to do this safely
 
 This project sets up a vpc infrastructure for the platform. Based on a Scott Logic pre-rolled module, it can be configured to use a combination of public and private subnets, or only public ones. It can also optionally setup a NAT gateway for each private subnet.
 
-The module defines the notion of "instance" subnets. This is a convenience. If only public subnets are used, the instance subnets are those. If private and public ones are used, then the private ones are the "instance" ones. This allows e.g. an ECS cluster to use the private ones when so configured and  
+The module defines the notion of "instance" subnets. This is a convenience. If only public subnets are used, the instance subnets are those. If private and public ones are used, then the private ones are the "instance" ones. This allows e.g. an ECS cluster to use the private ones when so configured.  
 
+# Platform design and useful information
 
+Before setting up, it is worth reading both the [Security Analytics Design document](security_analytics_design.md) and the [Useful Info document](useful_info.md) which together provide a background to the platform, as well as how to solve things you may encounter when building and developing the project further.
 
 # Platform Setup
 
@@ -30,11 +32,12 @@ First clone all the github repositories for the platform.
 
 The platform is split into a number of github repositories, allowing elements to be updated in isolation, which also providing the ability to add new scanning tasks as needed.
 
+* [Shared Code](https://github.com/ministryofjustice/securityanalytics-sharedcode) - this holds shared python code that is used by the platform 
 * [Shared Infrastructure](https://github.com/ministryofjustice/securityanalytics-sharedinfrastructure) - this holds the infrastructure used by all other components of the platform
-* [Shared Code](https://github.com/ministryofjustice/securityanalytics-sharedcode) - this holds shared python code that is used by the platform
-* [Task Execution](https://github.com/ministryofjustice/securityanalytics-taskexecution) - this provides shared resources to execute tasks, and a terraform task module which is used by scanning tasks
-* [nmap Scanner](https://github.com/ministryofjustice/securityanalytics-nmapscanner) - this is an example scanning task, which shows how you can build your own scanning tasks
 * [Analytics Platform](https://github.com/ministryofjustice/securityanalytics-analyticsplatform) - this takes in the data from the tasks, and processes them into Elasticsearch, with Kibana to view and analyse the results
+* [Task Execution](https://github.com/ministryofjustice/securityanalytics-taskexecution) - this provides shared resources to execute tasks, and a terraform task module which is used by scanning tasks. The DNS Ingestor is also in this project, which ingests DNS data from Route 53 and schedules the scanning process of all addresses over a 24 hour period.
+* [nmap Scanner](https://github.com/ministryofjustice/securityanalytics-nmapscanner) - this is an example scanning task, which shows how you can build your own scanning tasks
+* [ssl Scanner](https://github.com/ministryofjustice/securityanalytics-sslscanner) - this is an example secondary scanning task, which shows how you can build your own scanning tasks that are started as a result of a previous task
 
 # Building the platform
 
@@ -43,7 +46,7 @@ The platform is split into a number of github repositories, allowing elements to
 You need to install the following:
 
 * [Terraform](https://www.terraform.io/downloads.html) - the platform is currently built using Terraform v0.11.x
-* [Python](www.python.org) - the platform needs at least Python 3.7.0
+* [Python](www.python.org) - the platform needs at least Python 3.7.0. If you both Python 2 and Python 3 installed, ensure that the `python` command maps to Python 3.
 * [Pipenv](https://pypi.org/project/pipenv/)
 * [Docker](https://docs.docker.com/install/) - **you'll need to run Docker first so that the Docker CLI command works**
 * Amazon Web Services account and [AWS command line tools](https://aws.amazon.com/cli/)
@@ -81,19 +84,19 @@ account_id=<your_account_id>
 
 The default region in the Terraform backend setup for each part of the platform is `eu-west-2` (London). You can override this by passing an additional parameter to terraform init: `-backend-config "region=<your_region>"`
 
-The AWS profile that is used is `sec-an` if you need to change this, then this is another additional parameter in terraform init: `-backend-config "profile=<aws_profile_name>"`
+The default AWS profile that is used is `sec-an` if you need to change this, then this is another additional parameter in terraform init: `-backend-config "profile=<aws_profile_name>"`
 
 ## Build/deployment steps
 
-* Make sure you have your AWS credentials setup. Terraform will need this to setup the infrastructure in AWS. To cater for MFA accounts, your credentials should be specified in the `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` and `AWS_SESSION_TOKEN` environment variables.
+* Make sure you have your AWS credentials setup. Terraform will need this to setup the infrastructure in AWS. To cater for MFA accounts, your credentials should be specified in the `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` and `AWS_SESSION_TOKEN` environment variables. Alternatively if you have configured your aws credentials using `aws configure` you can just set `AWS_PROFILE` to the profile you are using to build this project.
 
 ### Shared Infrastructure
 * Start in the `securityanalytics-sharedinfrastructure` directory.  
   
 #### Back-end Infrastructure
 * **You only need to do this once per group of terraform users - this infrastructure is shared across all users.**
-* Since S3 requires bucket names to be globally unique, you can either set an `app_name` in an auto.tfvars file, or type it in when requested by terraform.  Remember this name as you'll be using it when building the rest of the platform.
-   Once you've done this you can then run terraform:
+* Since S3 requires bucket names to be globally unique, you can either set an `app_name` in an auto.tfvars file, or type it in when requested by terraform.  Remember this name as you'll be using it when building the rest of the platform. To help here there is a `configure-autovars.sh` that will configure this as well as your AWS account ID across all of the infrastructure folders in the project. 
+* Once you've done this you can then run terraform:
 ```
 cd terraform_backend
 
@@ -104,51 +107,37 @@ terraform workspace new <your_workspace>
 terraform apply
 ```
 
+### Shared Code
+* First enter the `securityanalytics-sharedcode` directory and run  `./setup.sh <app_name> <workspace_name>`
+
 #### Per-user Infrastructure
 * Next build the infrastructure for your user
 * There is a  `./setup.sh <app_name> <workspace_name>` script in the `securityanalytics-sharedinfrastructure` directory - run this and it will set up the infrastructure for you. If you are using Windows and Git Bash and it doesn't start that up, see the note above in pre-requisites.
 
-### Shared Code
-* Now enter the `securityanalytics-sharedcode` directory and run  `./setup.sh <app_name> <workspace_name>`
-
+### Analytics Platform
+* Next the analytics platform needs to be deployed, enter the `securityanalytics-analyticsplatform` directory and run `./setup.sh <app_name> <workspace_name>`. Elasticsearch takes up to 10 minutes to deploy, and also to destroy if you need to rebuild this project.
+  
 ### Task Execution
 * Now enter the `securityanalytics-taskexecution` directory to set up the ECS cluster for running scanning tasks on - run  `./setup.sh <app_name> <workspace_name>`
-
-### Analytics Platform
-* Next the analytics platform needs to be deployed, enter the `securityanalytics-analyticsplatform` directory and run `./setup.sh <app_name> <workspace_name>`. Elasticsearch takes around 10 minutes to deploy, so grab yourself a drink and wait...
+* You'll need to configure your Route 53 in the format: `arn:aws:iam::123456789012:role/aws-iam-ro-route53` or add an autovar called `route53_role`
+* Once deployed, your DNS data from Route 53 will start to be ingested, and scanning scheduled across the next 24 hours
 
 ### Nmap scanner
 
-* Enter the `securityanalytics-nmapscanner` directory. If you have both Python 2 and Python 3 installed you might need to edit the `python` references in elastic_resources/index.tf to be `python3`. 
-* You should now define the hosts you want to scan, by default `scanme.nmap.org` is scanned, you can override this by adding a `scan_hosts.auto.tfvar` file that contains:
-```
-scan_hosts = [
-    "host1",
-    "host2"]
-```
+* Enter the `securityanalytics-nmapscanner` directory. 
 * Once you've done these steps then run `./setup.sh <app_name> <workspace_name>` to deploy the infrastructure
 * During development if you're also editing the `securityanalytics-taskexecution` `ecs_task` code, you can make the module point to your local version in `infrastructure.tf` by commenting out the `source` variable and uncommenting the local version
+
+### SSL scanner
+
+* Enter the `securityanalytics-sslscanner` directory. 
+* Once you've done these steps then run `./setup.sh <app_name> <workspace_name>` to deploy the infrastructure
 
 ### Deployment complete
 
 Your deployment is now complete.
 
-In AWS, you will see a set of rules created for scanning each of your hosts once per hour - these are randomly distributed across the hour.  At most 15 tasks are set up, due to the limitation of 100 rules per account on AWS - once a scheduler is in place we will no longer be using this system.
+You will also see that documents populate Elasticsearch once the scan tasks run. To access Kibana, you will need to set up a user in the Cognito user pool first.
 
-You will also see that documents populate Elasticsearch once the scan tasks run - you can view these in Kibana after setting up a user in the Cognito user pool to set up login credentials for Kibana.
 
-### End to end test
 
-As part of the deployment of the nmap scanner, the host(s) you setup would be at a random minute past the hour, every hour. If you want to check your deployment was successful you can manually push a task:
-* Go to SQS in the AWS console
-* In your <workspace>-sec-an-nmap-trigger queue, send a message. The format can be any of:
-  * `hostname.sample` - this will run a scan against one host
-  * `{"CloudWatchEventHosts":["hostname1.sample", "hostname2.sample", "hostname3.sample"]}` - this will create three separate tasks, one for each host specified, which is the advised way to scan more than one host
-  * `hostname1.sample hostname2.sample hostname3.sample` - this will run nmap with three hosts as the parameter - this is not advised as when this is run, if there are any delays, the back off may cause the task to run for a long time
-  * `{"CloudWatchEventHosts":["hostname1.sample hostname2.sample hostname3.sample"]}` - whilst this format is supported, it's not advised!
-* It will take time for the tasks to complete (1-2 minutes) and for the results to appear in Kibana - you can watch the progress in the CloudWatch logs associated with the running lambdas.
-
-## Installation notes
-
-As the project evolves you might find your installation/update failing if so, here are some things that were observed when creating this documentation:
-* If there are fundamdenta changes to the structure of the project in the future, your calls to `terraform init` may fail if there are dependency changes, if this happens try `terraform init -upgrade` which will cause modules to be reininitialised.

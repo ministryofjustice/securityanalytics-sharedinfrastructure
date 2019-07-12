@@ -1,5 +1,7 @@
 # Security Analytics Platform - useful info
 
+During development, due to dependencies on other projects, you may encounter some of the things described in this document. 
+
 ## Terraform tips
 
 You should work within your own workspace for each terraform infrastructure directory, you select your workspace like this:
@@ -35,8 +37,6 @@ If you find yourself developing in a branch, then you can locally sync that with
 
 `git submodule add --force -b <branch name> https://github.com/ministryofjustice/securityanalytics-sharedcode.git shared_code`
 
-## Testing code
-
 
 ## Dependencies
 
@@ -46,11 +46,15 @@ Some scanning tasks are dependent on other resources, for example the SSL scanne
 
 ### terraform get --update
 
+You'll need to do this if you update any Kibana visualisations before deploying with `terraform apply`
+
 ### pipenv clean
 
-### git submodule sync
+This will uninsall any packages that you haven't specified in Pipfile.lock, and would come in useful during development to ensure unused packages aren't included.
 
+### MacOS maximum file limit
 
+By default, MacOS sets its file limit to 256 - when deploying using Terraform, there are instances where there are a lot of files being opened in parallel, and a high chance the build will fail on a Mac.  If this is the case, then set the file limit to 4096 using `ulimit -n 4096`
 
 ### errors
 
