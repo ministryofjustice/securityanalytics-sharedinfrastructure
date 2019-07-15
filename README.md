@@ -143,5 +143,11 @@ Your deployment is now complete.
 
 You will also see that documents populate Elasticsearch once the scan tasks run. To access Kibana, you will need to set up a user in the Cognito user pool first.
 
+As part of the deployment of the nmap scanner, the host(s) you setup would be at a random minute past the hour, every hour. If you want to check your deployment was successful you can manually push a task:
+* Go to SQS in the AWS console
+* In your <workspace>-sec-an-nmap-trigger queue, send a message. The format can be any of:
+  * `123.123.123.123` - this will run a scan against one host
+  * `{"AddressToScan":"123.12.123.123"}` - An alternative syntax using JSON
+* It will take time for the tasks to complete (1-2 minutes) and for the results to appear in Kibana - you can watch the progress in the CloudWatch logs associated with the running lambdas.
 
 
