@@ -1,6 +1,6 @@
  # Security Analytics Platform Design
  
- This project and the others associated are designed to form a foundation for an extensible security scanning and analytics application. This document describes key points of the design, it highlights intentions and potential future works as well as areas where the current implementation does not yet live up to intentions.
+ This project, and the others associated, are designed to form a foundation for an extensible security scanning and analytics platform. This document describes key points of the design, it highlights intentions and potential future works as well as areas where the current implementation does not yet live up to intentions.
  
  ## Data lake approach
  
@@ -12,17 +12,19 @@
  
  The temporal and non temporal keys that the are used by this project support the re-ingestion process. If a set of results were re-ingested, with new code to process the raw record, they would have the same keys, and would replace the older data in elastic.
  
+ N.B. Whilst the system of ids used to reference the data makes the re-ingestion process easy to implement, it has not yet been.
+ 
  ## Modularity
  
  Security analytics uses a modular design. This facilitates fast flexible working. Removing, for example, the need to redepoly/update all services when adding a new kind of scan, or updating an existing analytic of the scan data.
  
- This flexibility can lead to increased decoupling, and more rapid continuous deployment capabilities, but it does have implications. For example, the use of feature flags should be made. A feature flag allows a services's features to be added, removed or changed without impacting older services that interact with it. For example to change an api, one would add a feature flag to enable the new usage, once all clients use new version the old one can be removed in a later release. Changes made to services should never break backwards compatibility for any dependent service.
+ This flexibility can lead to increased decoupling, and more rapid continuous deployment capabilities, but it does have implications. For example, use of feature flags should be made. A feature flag allows a services's features to be added, removed or changed without impacting older services that interact with it. For example to change an api, one would add a feature flag to enable the new usage, once all clients use new version the old one can be removed in a later release. Changes made to services should never break backwards compatibility for any dependent service.
  
  ### Projects as services
  
  Many of the projects in security analytics have been designed to provide a service e.g. nmap scan is a service that will perform NMAP scans. These services all have an SQS queue as their input, and/or an SNS queue as their output. This shape allows both fan in and fan out, by which I mean that any other service with permissions can place a message on the inbound request sqs queue to use a service, and that any other service with permissions can subscribe to the output's SNS topic to consume a service's data.
  
- Note that a service should always try to place enough information into the message attributes of the SNS output events. This enables subscribing services to use filters in their subscriptions for efficiency. 
+ Note that a service should always try to place enough information into the message attributes of the SNS output events. This enables subscribing services to use filters in their subscriptions for efficiency.
  
  ### SSM parameters
  
@@ -64,7 +66,7 @@
       
  3. _Analytics Platform_
     - *Infrastructure*
-      1. ***Elastic search*** - Provisions the elastic search instance, kibana and integrates this with the cognito user pool. It also places an SQS queue in front of the elastic instance, to fit with the service model described above and to decouple e.g. scans from the elastic API allowing us to switch in other types of datastore later. Currently only uses AWS elastic search, but in future may be changed to create and manage the cluster more explicitly.
+      1. ***Elastic search*** - Provisions the elastic search instance, Kibana and integrates this with the Cognito user pool. It also places an SQS queue in front of the elastic instance, to fit with the service model described above and to decouple e.g. scans from the elastic API allowing us to switch in other types of datastore later. Currently only uses AWS elastic search, but in future may be changed to create and manage the cluster more explicitly.
       2. ***Dead letter reporter*** - This lambda trigger will be triggered whenever a dead letter is recorded into the bucket which holds them and report the dead letter to the elastic instance so that the breakdown of dead letters per resource and time and be recorded within elastic.
     - *Modules*
       1. ***Dynamo elastic sync*** - a module which can be used to replicate a dynamo db table into elastic e.g. used to visualise the DNS resolution data in Kibana.
@@ -90,7 +92,7 @@
  # Notes
  
  1. There is a point at which replacing ECS Fargate with a managed cluster will be more expensive than managing our own cluster
- 2. There is a point at which we may similarly want to manage our own elastic cluster, but things like e.g. cognito integration will be harder to replicate. We could also use a more up to date version of elastic that way.
+ 2. There is a point at which we may similarly want to manage our own elastic cluster, but things like e.g. Cognito integration will be harder to replicate. We could also use a more up to date version of elastic that way.
  3. Task execution project could be split into task execution and dns ingestor projects.
  4. Tracking DNS resolution data in dynamodb might be better stored in a graph data base e.g. neptune or neo4j
  5. The Dashboards that pull together the visualisations contributed by different projects currently live in nmap because it was for a long time our only scan.

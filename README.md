@@ -3,18 +3,20 @@
 
 # Security Analytics - Shared Infrastructure
 
-This project holds infrastructure used by all other components of the security analytics platform.
+This project defines and is used to instantiate instances of the shared infrastructure used by all other components of the security analytics platform.
 
 This document also serves as a starting point if you are new to the project and want to follow the [platform setup](#platform-setup) guide.
 
 
-## Infrastructure
+## Infrastructure folder
 
 This is the main terraform project that provides the shared infrastructure.
 
 ### Terraform
 
-The project uses terraform for managing updates and roll outs, to do this safely with distributed users requires a shared notion of state and shared locks. Because there is a 🐔 and 🥚 issue there are two separate terraform projects in this one project. `terraform_backend` exists to setup this shared backend. It only needs to be run manually once for the AWS account to bootstrap the project.
+The project uses terraform to declare the desired state of the infrastructure. The terraform tool is then used to resolve any differences between the desired and actual state. This can be used to manage updates and roll outs. 
+
+To work safely in a multi-user distributed environment, terraform makes use of a shared backend. Since there is a 🐔 and 🥚 issue if you try and use the backend to setup the backend, there are two separate terraform projects in this one project. `terraform_backend` exists to setup this shared backend. It only needs to be run manually once for each organisation that wishes to use sec-an.
 
 ### VPC
 
@@ -45,8 +47,8 @@ The platform is split into a number of github repositories, allowing elements to
 
 You need to install the following:
 
-* [Terraform](https://www.terraform.io/downloads.html) - the platform is currently built using Terraform v0.11.x
-* [Python](www.python.org) - the platform needs at least Python 3.7.0. If you both Python 2 and Python 3 installed, ensure that the `python` command maps to Python 3.
+* [Terraform](https://www.terraform.io/downloads.html) - the platform is currently built using Terraform v0.12.0
+* [Python](www.python.org) - the platform needs at least Python 3.7.X. If you have both Python 2 and Python 3 installed, ensure that the `python` command maps to Python 3.
 * [Pipenv](https://pypi.org/project/pipenv/)
 * [Docker](https://docs.docker.com/install/) - **you'll need to run Docker first so that the Docker CLI command works**
 * Amazon Web Services account and [AWS command line tools](https://aws.amazon.com/cli/)
@@ -55,11 +57,11 @@ You need to install the following:
 ## Terraform workspaces and unique names
 
 
-It is advised that you use a separate [terraform workspace](https://www.terraform.io/docs/enterprise/workspaces/index.html) across each part of the project, if you are collaborating with others on the same AWS account.
+It is advised that you use a separate [terraform workspace](https://www.terraform.io/docs/enterprise/workspaces/index.html) for each environment. For example you can have one workspace for dev, one for user X and one for QA. If you are collaborating with others on the same AWS account, you can use separate workspaces to isolate each other.
 
 The workspace name should be unique to you, within the group of users you are collaborating with on this project.  There is an AWS size limitation in the Elasticsearch domain name of 28 characters (we add `d-` as a prefix and a `-es` suffix), where the total length of the workspace name and app name need to be **22 characters or less**.
 
-You will need to do set the same workspace for each part of the project. If you haven't set up a workspace you can do this with `terraform workspace new <workspace_name>` and select with `terraform workspace select <workspace_name>`.  If you are unsure if you have set up a workspace you can check this with `terraform workspace list`.
+You will need to do set the same workspace for each part of the project. If you haven't set up a workspace you can do this by entering the project's `infrastructure` directory and then running `terraform workspace new <workspace_name>` and select with `terraform workspace select <workspace_name>`.  If you are unsure if you have set up a workspace you can check this with `terraform workspace list`, again this command must be run in the `infrastructure` directory.
 
 The Cognito User Pool Domain, and S3 bucket names, are required to be globally unique, the name is formed of `<workspace_name>-<app_name>-users`, if you experience a clash then you will have to choose a different workspace. With this in mind, choose a workspace name that has a high chance of being unique,. e.g. your username.
 
@@ -82,13 +84,15 @@ account_id=<your_account_id>
 
 ### AWS default region and profiles
 
-The default region in the Terraform backend setup for each part of the platform is `eu-west-2` (London). You can override this by passing an additional parameter to terraform init: `-backend-config "region=<your_region>"`
+The default region in the Terraform backend setup for each part of the platform is `eu-west-2` (London). You can override this by passing an additional parameter to terraform init: `-reconfigure -backend-config "bucket=<app_name>-terraform-state" "region=<your_region>"`
 
-The default AWS profile that is used is `sec-an` if you need to change this, then this is another additional parameter in terraform init: `-backend-config "profile=<aws_profile_name>"`
+The default AWS profile that is used is `sec-an` if you need to change this, then this is another additional parameter in terraform init: `-reconfigure -backend-config "bucket=<app_name>-terraform-state" "profile=<aws_profile_name>"`
 
 ## Build/deployment steps
 
 * Make sure you have your AWS credentials setup. Terraform will need this to setup the infrastructure in AWS. To cater for MFA accounts, your credentials should be specified in the `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` and `AWS_SESSION_TOKEN` environment variables. Alternatively if you have configured your aws credentials using `aws configure` you can just set `AWS_PROFILE` to the profile you are using to build this project.
+
+The CI build should be run using Circle CI to securely provide credentials using environment variables.
 
 ### Shared Infrastructure
 * Start in the `securityanalytics-sharedinfrastructure` directory.  
@@ -101,7 +105,7 @@ The default AWS profile that is used is `sec-an` if you need to change this, the
 cd terraform_backend
 
 # you'll need to init whenever you add new providers in terraform
-terraform init 
+terraform init -reconfigure -backend-config "profile=<aws_profile_name>
 # select your workspace
 terraform workspace new <your_workspace>
 terraform apply

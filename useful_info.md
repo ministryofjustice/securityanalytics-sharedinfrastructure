@@ -40,9 +40,9 @@ If you find yourself developing in a branch, then you can locally sync that with
 
 ## Dependencies
 
-If there are changes in shared_code that affect the lambda layers, then these need to be redeployed via terraform.  Once this is done, any code dependent on shared_code also needs to be redeployed.
+If there are changes in shared_code that affect the lambda layers, then these need to be redeployed via terraform. Once this is done, other projects that depend on shared code and need any new features will need their git submodules updating. Changes to shared_code should always be backwards compatible (at least using feature flags) so that a new version of shared_code doesn't force dependent projects to be re-deployed.
 
-Some scanning tasks are dependent on other resources, for example the SSL scanner is dependent on the SQS queue at the end of the nmap scanning process. If the nmap scanning process is rebuilt, then anything relying on that also needs to be rebuilt, otherwise any trigger will fail to be received by the secondary scanning task.
+Some scanning tasks are dependent on other resources, for example the SSL scanner is dependent on the output of the nmap scanning process.
 
 ### terraform get --update
 
@@ -50,13 +50,8 @@ You'll need to do this if you update any Kibana visualisations before deploying 
 
 ### pipenv clean
 
-This will uninsall any packages that you haven't specified in Pipfile.lock, and would come in useful during development to ensure unused packages aren't included.
+This will uninstall any packages that you haven't specified in Pipfile.lock, and would come in useful during development to ensure unused packages aren't included.
 
 ### MacOS maximum file limit
 
 By default, MacOS sets its file limit to 256 - when deploying using Terraform, there are instances where there are a lot of files being opened in parallel, and a high chance the build will fail on a Mac.  If this is the case, then set the file limit to 4096 using `ulimit -n 4096`
-
-### errors
-
-if you see an error in base_events.py line 296, there's a chance that you've included asyncio somewhere - in this case do a 'pipenv clean' across your projects and rebuild.
-
